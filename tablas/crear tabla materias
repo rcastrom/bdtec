@@ -1,0 +1,12 @@
+create table "ITE".materias (
+	materia                         "T_materia"                     not null  ,
+	nivel_escolar                   character(1)                              null  ,
+	tipo_materia                    smallint                                  null  ,
+	clave_area                      character(6)                              null  ,
+	nombre_completo_materia         varchar(100)                     not null  ,
+	nombre_abreviado_materia        varchar(40)                      not null  ,
+	caracterizacion                 text                                 null  ,
+	generales                       text                                 null   
+);
+ALTER TABLE "ITE".materias
+    OWNER to amaterasu;

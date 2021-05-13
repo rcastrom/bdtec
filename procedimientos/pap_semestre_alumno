@@ -1,0 +1,44 @@
+CREATE OR REPLACE FUNCTION "ITE".pap_semestre_alumno(IN peri character varying) 
+RETURNS void
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+-- Inicializo variables
+DECLARE
+    rec record;
+	semestr integer:=0; 
+    semini integer:=0;
+    anioini integer:=0; 
+    perini integer:=0;
+    perrev integer:=0;
+	cuando timestamp without time zone;
+BEGIN	
+--Alumnos del periodo en cuestion
+    FOR rec IN SELECT DISTINCT SM.no_de_control FROM "ITE".seleccion_materias SM WHERE SM.periodo=peri
+        LOOP
+             -- Se calcula semestre del alumno
+             IF SUBSTRING(peri,5,1) = '3' THEN        
+                 semini:=2;        
+             ELSE        
+                 semini:=1;
+             END IF;
+            SELECT SUBSTRING(A.periodo_ingreso_it,1,4)::INTEGER,SUBSTRING(A.periodo_ingreso_it,5,1)::INTEGER, A.periodos_revalidacion        
+            INTO anioini,perini,perrev FROM "ITE".alumnos A WHERE A.no_de_control = rec.no_de_control;
+            semestr:= 2 * (SUBSTRING(peri,1,4)::INTEGER - anioini);        
+            IF perini=3 THEN
+                semestr:= semestr + (semini - perini + 2 + perrev);
+            ELSE 
+                semestr:= semestr + (semini - perini + 1 + perrev);
+            END IF;
+            IF semestr < 0 THEN
+                semestr:= 0;
+            END IF;
+            --Se le indica ahora que irá al próximo semestre
+            semestr:= semestr + 1;
+            UPDATE "ITE".alumnos SET semestre = semestr where no_de_control = rec.no_de_control;
+        END LOOP;
+END;
+
+$BODY$;
+ALTER FUNCTION "ITE".pap_semestre_alumno(character varying)
+    OWNER TO amaterasu;

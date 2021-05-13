@@ -1,0 +1,24 @@
+CREATE FUNCTION "ITE".pac_calificacion_semestre(IN control character varying, IN peri character varying)
+    RETURNS TABLE(materia "ITE"."T_materia", grupo character(3),nombre_abreviado_materia character varying(40),creditos_materia smallint,calificacion "ITE"."T_calificacion")
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+
+BEGIN
+	
+    RETURN QUERY SELECT DISTINCT(SM.materia),SM.grupo,M.nombre_abreviado_materia, MC.creditos_materia,SM.calificacion
+FROM "ITE".seleccion_materias SM, "ITE".materias M, "ITE".materias_carreras MC, "ITE".alumnos A
+WHERE A.no_de_control=control 
+AND A.no_de_control=SM.no_de_control
+AND SM.materia=M.materia
+AND MC.materia=M.materia
+AND MC.carrera=A.carrera
+AND MC.reticula=A.reticula
+AND SM.periodo=peri;
+
+END
+
+$BODY$;
+
+ALTER FUNCTION "ITE".pac_calificacion_semestre(character varying,character varying)
+    OWNER TO amaterasu;

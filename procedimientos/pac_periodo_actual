@@ -1,0 +1,37 @@
+DECLARE
+	mes smallint;
+	dia smallint;
+	anio int;
+	perio character(5);
+BEGIN
+	SELECT date_part('month',now()) into mes; 
+	SELECT date_part('day',  now()) into dia;
+	SELECT date_part('year', now()) into anio;
+	IF mes BETWEEN 2 and 5 THEN
+ 		SELECT concat(anio,'1') into perio;
+	--inicio de agosto-diciembre en el mes de agosto	
+	ELSIF (mes=7 and dia<=30) THEN -- ESTA ES LA LINEA ORIGINAL: @mes=7 or (@mes=8 and @dia <=3) 
+ 		SELECT concat(anio,'2') into perio; 
+ 	ELSE
+ 		IF mes between 7 and 12 THEN -- ESTA ES LA LINEA ORIGINAL: @mes between 8 and 12 
+ 			IF mes=12 and dia>=22 THEN --dia de diciembre en que inicia el periodo Enero-Junio
+ 				SELECT concat(anio+1,'1') into perio; -- tecmina
+ 			ELSE
+ 				SELECT concat(anio,'3') into perio; 
+			END IF;
+ 		ELSE 
+ 			IF mes=1 THEN
+ 				SELECT concat(anio,'1') into perio;
+ 			ELSE
+ 			--dia para determinar inicio de verano del mes 06
+ 				IF dia < 27 THEN
+ 					SELECT concat(@anio,'1') into perio;
+ 				ELSE 
+ 					SELECT concat(@anio,'2') into perio;
+				END IF;
+			END IF;
+		END IF;
+	END IF;
+	RETURN QUERY SELECT * FROM periodos_escolares WHERE periodo=perio; 
+	RETURN;
+END;

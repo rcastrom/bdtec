@@ -1,0 +1,8 @@
+create table "ITE".preparatorias (
+	clave_preparatoria              char(10)                         not null  ,
+	nombre_preparatoria             char(200)                        not null  ,
+	entidad_federativa              int                              not null  ,
+	municipio                       char(50)                             null  
+);
+ALTER TABLE "ITE".preparatorias
+    OWNER to amaterasu;

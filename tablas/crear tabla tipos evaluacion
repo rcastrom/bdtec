@@ -1,0 +1,13 @@
+create table "ITE".tipos_evaluacion (
+	plan_de_estudios                character(1)                          not null  ,
+	tipo_evaluacion                 character(2)                          not null  ,
+	descripcion_evaluacion          character varying(80)                     null  ,
+	descripcion_corta_evaluacion    character varying(10)                     null  ,
+	calif_minima_aprobatoria        smallint                                  null  ,
+	usocurso                        character(1)                              null  ,
+	nosegundas                      character(1)                              null  ,
+	prioridad                       smallint                                  null   
+);
+
+ALTER TABLE "ITE".tipos_evaluacion
+    OWNER to amaterasu;

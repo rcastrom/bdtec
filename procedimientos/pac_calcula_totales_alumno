@@ -1,0 +1,26 @@
+CREATE FUNCTION "ITE".pac_calcula_totales_alumno(IN control character varying)
+    RETURNS TABLE(no_de_control "ITE"."T_no_de_control", creditos_totales smallint, clave_oficial character,creditos_aprobados bigint,creditos_aprobados2 bigint, promedio numeric(10,2),periodo_final text)
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+
+BEGIN
+	
+    RETURN QUERY SELECT A.no_de_control, C.creditos_totales, C.clave_oficial, sum(MC.creditos_materia) as creditos_aprobados,
+sum(MC.creditos_materia) as creditos_aprobados2, avg(HA.calificacion)::numeric(10,2) as promedio, max(HA.periodo) as periodo_final  
+   from "ITE".historia_alumno HA, "ITE".alumnos A, "ITE".materias_carreras MC, "ITE".carreras C, "ITE".materias M   
+  where HA.no_de_control = control   
+    and HA.calificacion >= 60   
+    and HA.no_de_control = A.no_de_control   
+   and A.carrera = C.carrera and A.reticula = C.reticula   
+   and HA.materia = M.materia   
+   and A.carrera = MC.carrera and A.reticula = MC.reticula and HA.materia = MC.materia   
+   and M.tipo_materia <> 4   
+  group by A.no_de_control, C.creditos_totales, C.clave_oficial;
+
+END
+
+$BODY$;
+
+ALTER FUNCTION "ITE".pac_calcula_totales_alumno(character varying)
+    OWNER TO amaterasu;

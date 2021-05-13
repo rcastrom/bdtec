@@ -1,0 +1,20 @@
+CREATE TABLE "ITE".horarios (
+	periodo                         "T_periodo"                        not null  ,
+	rfc                             char(13)                               null  ,
+	tipo_horario                    char(1)                            not null  ,
+	dia_semana                      smallint                           not null  ,
+	hora_inicial                    time without time zone             not null  ,
+	hora_final                      time without time zone                 null  ,
+	materia                         "T_materia"                            null  ,
+	grupo                           char(3)                                null  ,
+	aula                            char(6)                                null  ,
+	actividad                       char(10)                               null  ,
+	consecutivo                     smallint                               null  ,
+	vigencia_inicio                 date                                   null  ,
+	vigencia_fin                    date                                   null  ,
+	consecutivo_admvo               smallint                               null  ,
+	tipo_personal                   char(1)                                null   
+);
+ALTER TABLE "ITE".horarios
+    OWNER to amaterasu;
+

@@ -1,0 +1,40 @@
+CREATE FUNCTION "ITE".pac_constancias_kardex(IN control character varying)
+    RETURNS TABLE(periodo "ITE"."T_periodo", materia "ITE"."T_materia", n_materia character varying, n_materia_r character varying, calificacion "ITE"."T_calificacion", 
+    tipo_evaluacion character(2), creditos integer)
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+DECLARE
+carre character varying;
+reti smallint;
+rec record;
+
+BEGIN
+	SELECT carrera FROM "ITE".alumnos WHERE no_de_control=control into carre;
+	SELECT reticula FROM "ITE".alumnos WHERE no_de_control=control into reti;
+
+	CREATE TEMP TABLE IF NOT EXISTS materias_alumno AS
+	select h.periodo, h.materia, m.nombre_completo_materia as n_materia, m.nombre_abreviado_materia as n_materia_r, h.calificacion, h.tipo_evaluacion, 0 as creditos, 0 as orden_certificado
+    FROM "ITE".historia_alumno h
+	LEFT JOIN "ITE".materias m
+	ON (h.materia =m.materia)
+    WHERE h.no_de_control=control;
+	
+    FOR rec IN SELECT mc.materia,mc.creditos_materia,mc.orden_certificado FROM "ITE".materias_carreras mc WHERE mc.carrera = carre and mc.reticula = reti	
+    LOOP
+        UPDATE materias_alumno
+        SET creditos = rec.creditos_materia, orden_certificado = rec.orden_certificado
+        WHERE materias_alumno.materia=rec.materia;
+    END LOOP;
+
+    RETURN QUERY SELECT ma.periodo, ma.materia, ma.n_materia, ma.n_materia_r, ma.calificacion, ma.tipo_evaluacion, ma.creditos
+	FROM materias_alumno ma
+    ORDER by periodo;
+
+	DROP TABLE materias_alumno; 
+END
+
+$BODY$;
+
+ALTER FUNCTION "ITE".pac_constancias_kardex(character varying)
+    OWNER TO amaterasu;

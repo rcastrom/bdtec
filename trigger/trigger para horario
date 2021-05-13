@@ -1,0 +1,56 @@
+DECLARE
+vexcesohoras char(13);
+vcount int; 
+vcount1 int; 
+vcount2 int; 
+vparalelo char(20) := null;
+BEGIN
+	IF NEW.dia_semana =1 THEN 
+	vexcesohoras := 'domingo'; 
+        ELSIF NEW.dia_semana = 2 THEN
+	vexcesohoras := 'lunes'; 
+        ELSIF NEW.dia_semana = 3 THEN
+	vexcesohoras := 'martes';
+        ELSIF NEW.dia_semana = 4 THEN
+	vexcesohoras := 'miercoles';
+        ELSIF NEW.dia_semana = 5 THEN
+	vexcesohoras := 'jueves';
+        ELSIF NEW.dia_semana = 6 THEN
+	vexcesohoras := 'viernes';
+        ELSE 
+	vexcesohoras := 'sabado';
+	END IF;      
+	IF NEW.tipo_horario='D' THEN
+      	SELECT paralelo_de FROM "ITE".grupos WHERE periodo=NEW.periodo and materia=NEW.materia AND grupo=NEW.grupo INTO vparalelo;
+	END IF;
+	IF vparalelo IS NULL THEN
+		SELECT count(*) from "ITE".horarios where periodo=NEW.periodo AND rfc=NEW.rfc AND (NEW.rfc is not null or NEW.rfc<>'') and dia_semana=NEW.dia_semana 
+		and ( hora_inicial=NEW.hora_inicial  or ( hora_inicial < NEW.hora_inicial and NEW.hora_inicial<hora_final )  
+		or ( hora_inicial < NEW.hora_final and NEW.hora_final<hora_final )  
+		or ( NEW.hora_inicial<hora_inicial and hora_inicial<NEW.hora_final ) 
+		or ( hora_inicial > NEW.hora_inicial and hora_final<NEW.hora_final )                
+      		and (vigencia_inicio=NEW.vigencia_inicio OR NEW.vigencia_inicio IS NULL)) INTO vcount;
+		IF vcount > 0 THEN
+			RAISE EXCEPTION 'Error esta persona ya tiene ocupada la hora indicada el día %', vexcesohoras;
+	END IF;
+	IF NEW.tipo_horario='D' THEN
+			select count(*) from "ITE".grupos where paralelo_de=CONCAT(NEW.materia,NEW.grupo) and periodo = NEW.periodo INTO vcount1;
+			 select count(*) from "ITE".horarios where periodo=NEW.periodo and aula=NEW.aula and aula<>'no' 
+			 and aula in (select a.aula from aulas a where permite_cruce='N') 
+			 and dia_semana=NEW.dia_semana         
+				and ( hora_inicial=NEW.hora_inicial  or                                         
+					( (hora_inicial < NEW.hora_inicial) and (NEW.hora_inicial<hora_final) )  or    
+					( (hora_inicial < NEW.hora_final) and (NEW.hora_final<hora_final) )  or                                        
+					( (NEW.hora_inicial<hora_inicial) and (hora_inicial<NEW.hora_final)) or                                        
+					( (hora_inicial > NEW.hora_inicial) and (hora_final<NEW.hora_final))                                        
+				) into vcount2;
+			IF (vcount1 = 0 and vcount2 > 1) THEN      
+				RAISE EXCEPTION 'Error, el aula indicada ya está ocupada en este horario el día %', vexcesohoras;
+			END IF;
+	END IF;
+		RETURN NEW;
+	ELSE
+		RETURN NEW;
+	END IF;
+END
+

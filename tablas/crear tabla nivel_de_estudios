@@ -1,0 +1,6 @@
+create table "ITE".nivel_de_estudios (
+	nivel_estudios                  char(1)                          not null  ,
+	descripcion_nivel_estudios      varchar(100)                         null   
+);
+ALTER TABLE "ITE".nivel_de_estudios
+    OWNER to amaterasu;

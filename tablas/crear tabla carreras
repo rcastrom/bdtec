@@ -1,0 +1,19 @@
+create table "ITE".carreras (
+	carrera                         "T_carrera"                        not null  ,
+	reticula                        "T_reticula"                       not null  ,
+	nivel_escolar                   character(1)                     not null  ,
+	clave_oficial                   character(20)                    not null  ,
+	nombre_carrera                  character varying(80)            not null  ,
+	nombre_reducido                 character varying(30)            not null  ,
+	siglas                          character varying(10)            not null  ,
+	carga_maxima                    smallint                         not null  ,
+	carga_minima                    smallint                         not null  ,
+	creditos_totales                smallint                             null  ,
+	modalidad                       character(1)                         null  ,
+	nreal                           character varying(100)               null  ,
+	ofertar                         boolean                              null  ,
+	abrev                           character(7)                         null  ,
+	nombre_ofertar                  character varying(200)               null   
+);
+ALTER TABLE "ITE".carreras
+    OWNER to amaterasu;

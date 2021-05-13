@@ -1,0 +1,135 @@
+CREATE FUNCTION "ITE".pap_agrega_calif_a_histo(IN peri character varying) 
+RETURNS smallint
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+DECLARE
+fecha_actual timestamp without time zone;
+fecha_cali timestamp without time zone;
+rec record;
+contador smallint := 0;
+existencia smallint;
+nveces smallint := 0;
+tipo char(2);
+acred char(1);
+per_acred character varying;
+BEGIN
+	SELECT current_timestamp into fecha_actual;
+   
+    IF substring(peri,5,1)='1' THEN 
+     SELECT to_timestamp(CONCAT(substring(peri,1,4),'/06/01'),'YYYY/MM/DD HH24:MI:SS') INTO fecha_cali;
+    ELSIF substring(peri,5,1)='2' THEN 
+     SELECT to_timestamp(CONCAT(substring(peri,1,4),'/08/01'),'YYYY/MM/DD HH24:MI:SS') INTO fecha_cali; 
+    ELSE 
+     SELECT to_timestamp(CONCAT(substring(peri,1,4),'/12/01'),'YYYY/MM/DD HH24:MI:SS') INTO fecha_cali; 
+    END IF;
+ 
+    -- Determinar si ya existe historial academico del periodo
+    SELECT COUNT(*) FROM "ITE".historia_alumno WHERE historia_alumno.periodo=peri AND historia_alumno.tipo_evaluacion NOT IN ('EE','EA','RU','RC','AC') INTO existencia;
+
+    IF existencia > 0 THEN  --Si existe, por lo que se verifica que no se vaya a repetir la materia
+        CREATE TEMP TABLE IF NOT EXISTS historia_periodo AS 
+        select HA.periodo, HA.no_de_control, HA.materia, HA.calificacion, HA.tipo_evaluacion, HA.fecha_calificacion, HA.plan_de_estudios
+        from "ITE".historia_alumno HA
+        where HA.periodo=peri and HA.tipo_evaluacion not in ('EE', 'EA', 'RU', 'RC', 'AC');
+	
+        FOR rec IN SELECT SM.periodo, SM.no_de_control, SM.materia, SM.grupo, SM.calificacion, SM.tipo_evaluacion, A.plan_de_estudios, SM.nopresento 
+        from "ITE".seleccion_materias SM, "ITE".alumnos A 
+        where SM.periodo=peri AND SM.tipo_evaluacion is not NULL AND SM.no_de_control=A.no_de_control
+        LOOP     
+            SELECT COUNT(*) FROM historia_periodo HP WHERE HP.periodo=rec.periodo and HP.no_de_control=rec.no_de_control and HP.materia=rec.materia 
+            and HP.calificacion=rec.calificacion and HP.tipo_evaluacion=rec.tipo_evaluacion and HP.fecha_calificacion=fecha_cali 
+            and HP.plan_de_estudios=rec.plan_de_estudios INTO contador;
+            IF contador=0 THEN  --Como la materia no esta repetida, se puede analizar para determinar como se almacena
+                IF substring(rec.tipo_evaluacion,1,1)='R' THEN
+                    SELECT COUNT(*) FROM "ITE".historia_alumno WHERE no_de_control=rec.no_de_control AND materia=rec.materia INTO nveces; 
+                    IF nveces > 2 THEN
+                        IF rec.calificacion >=70 THEN
+                            SELECT 'A' INTO acred;
+                            SELECT 'CE' INTO tipo;
+                            SELECT peri INTO per_acred;
+                        ELSE
+                            SELECT 'N' INTO acred;
+                            SELECT 'CE' INTO tipo;
+                            SELECT null INTO per_acred;
+                        END IF;
+                    ELSE
+                        IF rec.calificacion >=70 THEN
+                            SELECT 'A' INTO acred;
+                            SELECT rec.tipo_evaluacion INTO tipo;
+                            SELECT peri INTO per_acred;
+                        ELSE
+                            SELECT 'P' INTO acred;
+                            SELECT rec.tipo_evaluacion INTO tipo;
+                            SELECT null INTO per_acred;
+                        END IF;
+                    END IF;
+                ELSE
+                    IF rec.calificacion >=70 THEN
+                        SELECT 'A' INTO acred;
+                        SELECT rec.tipo_evaluacion INTO tipo;
+                        SELECT peri INTO per_acred;
+                    ELSE
+                        SELECT 'P' INTO acred;
+                        SELECT rec.tipo_evaluacion INTO tipo;
+                        SELECT null INTO per_acred;
+                   END IF;
+                END IF;
+                INSERT INTO "ITE".historia_alumno(periodo,no_de_control,materia,grupo,calificacion,tipo_evaluacion,fecha_calificacion,
+                plan_de_estudios,estatus_materia,nopresento,usuario,fecha_actualizacion,periodo_acredita_materia,created_at,updated_at) VALUES       
+                (rec.periodo,rec.no_de_control,rec.materia,rec.grupo,rec.calificacion,tipo,fecha_cali,rec.plan_de_estudios,acred,null,usuar,
+                fecha_actual,per_acred,fecha_cali,null); 
+            END IF;   
+        END LOOP;
+        DROP TABLE historia_periodo;
+    ELSE 
+        FOR rec IN SELECT SM.periodo, SM.no_de_control, SM.materia, SM.grupo, SM.calificacion, SM.tipo_evaluacion, A.plan_de_estudios, SM.nopresento 
+        from "ITE".seleccion_materias SM, "ITE".alumnos A 
+        where SM.periodo=peri AND SM.tipo_evaluacion is not NULL AND SM.no_de_control=A.no_de_control
+        LOOP     
+            IF substring(rec.tipo_evaluacion,1,1)='R' THEN
+                SELECT COUNT(*) FROM "ITE".historia_alumno WHERE no_de_control=rec.no_de_control AND materia=rec.materia INTO nveces; 
+                IF nveces > 2 THEN
+                    IF rec.calificacion >=70 THEN
+                        SELECT 'A' INTO acred;
+                        SELECT 'CE' INTO tipo;
+                        SELECT peri INTO per_acred;
+                    ELSE
+                        SELECT 'N' INTO acred;
+                        SELECT 'CE' INTO tipo;
+                        SELECT null INTO per_acred;
+                    END IF;
+                ELSE
+                   IF rec.calificacion >=70 THEN
+                        SELECT 'A' INTO acred;
+                        SELECT rec.tipo_evaluacion INTO tipo;
+                        SELECT peri INTO per_acred;
+                   ELSE
+                        SELECT 'P' INTO acred;
+                        SELECT rec.tipo_evaluacion INTO tipo;
+                        SELECT null INTO per_acred;
+                   END IF;
+                END IF;
+            ELSE
+                IF rec.calificacion >=70 THEN
+                    SELECT 'A' INTO acred;
+                    SELECT rec.tipo_evaluacion INTO tipo;
+                    SELECT peri INTO per_acred;
+                ELSE
+                    SELECT 'P' INTO acred;
+                    SELECT rec.tipo_evaluacion INTO tipo;
+                    SELECT null INTO per_acred;
+                END IF;
+            END IF;
+            INSERT INTO "ITE".historia_alumno(periodo,no_de_control,materia,grupo,calificacion,tipo_evaluacion,fecha_calificacion,
+            plan_de_estudios,estatus_materia,nopresento,usuario,fecha_actualizacion,periodo_acredita_materia,created_at,updated_at) VALUES       
+            (rec.periodo,rec.no_de_control,rec.materia,rec.grupo,rec.calificacion,tipo,fecha_cali,rec.plan_de_estudios,acred,null,usuar,
+            fecha_actual,per_acred,fecha_cali,null);            
+        END LOOP;
+    END IF;
+    RETURN 1 as fin; 
+END
+
+$BODY$;
+ALTER FUNCTION "ITE".pap_agrega_calif_a_histo(character varying)
+    OWNER TO amaterasu;

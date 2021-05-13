@@ -1,0 +1,18 @@
+create table "ITE".historia_alumno (
+	periodo                         "T_periodo"                        not null  ,
+	no_de_control                   "T_no_de_control"                  not null  ,
+	materia                         "T_materia"                        not null  ,
+	grupo                           character(3)                           null  ,
+	calificacion                    "T_calificacion"                       null  ,
+	tipo_evaluacion                 character(2)                           null  ,
+	fecha_calificacion              timestamp without time zone        not null  ,
+	plan_de_estudios                character(1)                           null  ,
+	estatus_materia                 character(1)                           null  ,
+	nopresento                      character(1)                           null  ,
+	usuario                         character(30)                          null  ,
+	fecha_actualizacion             timestamp without time zone            null  ,
+	periodo_acredita_materia        "T_periodo"                            null   
+);
+
+ALTER TABLE "ITE".historia_alumno
+    OWNER to amaterasu;

@@ -1,0 +1,21 @@
+create table "ITE".acumulado_historico (
+	periodo                         "ITE"."T_periodo"                        not null  ,
+	no_de_control                   "ITE"."T_no_de_control"                  not null  ,
+	estatus_periodo_alumno          char(1)                                      null  ,
+	creditos_cursados               "ITE"."T_creditos"                           null  ,
+	creditos_aprobados              "ITE"."T_creditos"                           null  ,
+	promedio_ponderado              "ITE"."T_promedio"                           null  ,
+	promedio_ponderado_acumulado    "ITE"."T_promedio"                           null  ,
+	promedio_aritmetico             "ITE"."T_promedio"                           null  ,
+	promedio_aritmetico_acumulado   "ITE"."T_promedio"                           null  ,
+	promedio_certificado            "ITE"."T_promedio"                           null  ,
+	materias_cursadas               int                                          null  ,
+	materias_reprobadas             int                                          null  ,
+	materias_a_examen_especial      int                                          null  ,
+	materias_especial_reprobadas    int                                          null  ,
+	indice_reprobacion_semestre     numeric(8,6)                                 null  ,
+	creditos_autorizados            "ITE"."T_creditos"                           null  ,
+	indice_reprobacion_acumulado    numeric(8,6)                                 null   
+);
+ALTER TABLE "ITE".acumulado_historico
+    OWNER to amaterasu;

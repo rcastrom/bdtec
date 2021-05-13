@@ -1,0 +1,19 @@
+CREATE OR REPLACE FUNCTION "ITE".pac_cresidencias(IN per "ITE"."T_periodo",IN quien character varying,OUT cantidad integer)
+    RETURNS integer
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL UNSAFE
+    COST 100
+AS $BODY$
+BEGIN
+
+select count(*) from "ITE".seleccion_materias, "ITE".materias, "ITE".grupos
+	WHERE nombre_abreviado_materia LIKE 'RESIDENCIA%' 
+	AND materias.materia=grupos.materia
+	AND grupos.periodo=per
+	AND seleccion_materias.periodo=grupos.periodo
+	AND seleccion_materias.materia=grupos.materia
+	AND seleccion_materias.grupo=grupos.grupo
+	AND grupos.rfc=quien into cantidad;
+END
+$BODY$;

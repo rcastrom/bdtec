@@ -1,0 +1,41 @@
+CREATE FUNCTION "ITE".pac_gruposmateria(IN peri character varying, IN control character varying, IN mater character varying)
+    RETURNS TABLE(grupo character(3), capacidad_grupo smallint, alumnos_inscritos smallint, rfc character(13), nombre_abreviado_materia character varying, paralelo_de character(10))
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+DECLARE
+carre character varying;
+reti smallint;
+especiales smallint;
+seleccionadas smallint;
+ofertadas smallint;
+diferencia smallint;
+
+
+BEGIN
+	SELECT carrera FROM alumnos WHERE no_de_control=control into carre;
+	SELECT reticula FROM alumnos WHERE no_de_control=control into reti;
+	
+    -- Obtener materias en especial acreditadas
+	CREATE TEMP TABLE IF NOT EXISTS info_grupos AS 
+	SELECT G.grupo, G.capacidad_grupo, G.alumnos_inscritos, G.rfc, M.nombre_abreviado_materia, G.paralelo_de 
+    FROM grupos G, materias M 
+    WHERE G.periodo=peri AND G.materia=mater AND M.materia=mater AND exclusivo_carrera=carre AND exclusivo_reticula=reti
+    UNION
+    SELECT G.grupo, G.capacidad_grupo, G.alumnos_inscritos, G.rfc, M.nombre_abreviado_materia, G.paralelo_de 
+    FROM grupos G, materias M 
+    WHERE G.periodo=peri AND G.materia=mater AND M.materia=mater AND G.exclusivo='no';  
+  
+
+    RETURN QUERY SELECT info_grupos.grupo, info_grupos.capacidad_grupo, info_grupos.alumnos_inscritos, info_grupos.rfc, info_grupos.nombre_abreviado_materia, info_grupos.paralelo_de 
+    FROM info_grupos;
+
+	DROP TABLE info_grupos;
+	
+	
+END
+
+$BODY$;
+
+ALTER FUNCTION "ITE".pac_gruposmateria(character varying, character varying, character varying)
+    OWNER TO amaterasu;

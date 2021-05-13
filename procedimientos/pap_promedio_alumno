@@ -1,0 +1,22 @@
+CREATE FUNCTION "ITE".pap_promedio_alumno(IN peri character varying) 
+RETURNS smallint
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+DECLARE
+    rec record;
+    conteo integer:=0;
+    regreso smallint:=0;
+BEGIN	
+--Alumnos del periodo en cuestion
+    FOR rec IN SELECT DISTINCT(historia_alumno.no_de_control) AS control FROM "ITE".historia_alumno WHERE periodo=peri
+        LOOP
+            regreso:= "ITE".pap_promedios_alumno(rec.control,peri);
+            conteo:=conteo+regreso;
+        END LOOP;
+RETURN conteo; 
+END;
+
+$BODY$;
+ALTER FUNCTION "ITE".pap_promedio_alumno(character varying)
+    OWNER TO amaterasu;

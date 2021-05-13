@@ -1,0 +1,18 @@
+create table "ITE".grupos (
+	periodo                         "T_periodo"                     not null  ,
+	materia                         "T_materia"                     not null  ,
+	grupo                           character(3)                    not null  ,
+	estatus_grupo                   character(1)                        null  ,
+	capacidad_grupo                 smallint                        not null  ,
+	alumnos_inscritos               smallint                            null  ,
+	folio_acta                      "T_folio_acta"                      null  ,
+	paralelo_de                     character(10)                       null  ,
+	exclusivo_carrera               "T_carrera"                         null  ,
+	exclusivo_reticula              "T_reticula"                        null  ,
+	rfc                             character(13)                       null  ,
+	tipo_personal                   character(1)                        null  ,
+	exclusivo                       character(2)                        null  ,
+	entrego                         boolean                             null   
+);
+ALTER TABLE "ITE".grupos
+    OWNER to amaterasu;

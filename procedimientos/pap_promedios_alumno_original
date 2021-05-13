@@ -1,0 +1,189 @@
+CREATE FUNCTION "ITE".pap_promedios_alumno(IN peri character varying) 
+RETURNS smallint
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+DECLARE
+    rec record;
+    historia record;
+	materias_cursadas integer; 
+    materias_aprobadas integer; 
+    materias_reprobadas integer; 
+    materias_a_especial integer; 
+    materias_especial_reprobado integer; 
+    creditos_cursados integer; 
+    creditos_aprobados integer; 
+    creditos_reprobados integer; 
+    suma_calificacion integer; 
+    suma_calificacion_ponderada integer; 
+    indice numeric(5,2); 
+    creditos_promedio integer; 
+    materias_promedio integer; 
+    promedio_ponderado numeric(5,2); 
+    promedio_aritmetico numeric(5,2);          
+    creditos_aprobados_a integer; 
+    creditos_cursados_a integer; 
+    suma_calificacion_a integer; 
+    suma_calificacion_ponderada_a integer; 
+    suma_calificacion_certificado integer; 
+    creditos_reprobados_a integer; 
+    materias_promedio_certificado integer; 
+    indice_a numeric(5,2); 
+    creditos_promedio_a integer; 
+    materias_promedio_a integer; 
+    promedio_ponderado_a numeric(5,2); 
+    promedio_aritmetico_a numeric(5,2); 
+    promedio_certificado numeric(5,2);
+    estatus_periodo char(1);
+BEGIN	
+--Alumnos del periodo en cuestion
+    FOR rec IN SELECT DISTINCT(SM.no_de_control) FROM "ITE".seleccion_materias SM where SM.periodo=peri 
+        LOOP 
+        --Historial academico
+            CREATE TEMP TABLE IF NOT EXISTS histo AS SELECT HA.periodo, HA.no_de_control, HA.materia, HA.calificacion, HA.tipo_evaluacion, HA.plan_de_estudios, 
+            HA.estatus_materia, HA.nopresento, HA.periodo_acredita_materia FROM "ITE".historia_alumno HA WHERE HA.periodo <= peri and no_de_control = rec.no_de_control;
+        --Analizar historia
+            FOR historia IN SELECT H.periodo, H.no_de_control, H.materia, MC.creditos_materia, H.calificacion, H.tipo_evaluacion, A.plan_de_estudios, H.estatus_materia, 
+            C.creditos_totales, H.periodo_acredita_materia                       
+            FROM histo H, "ITE".materias_carreras MC, "ITE".alumnos A, "ITE".materias M, "ITE".carreras C       
+            WHERE H.no_de_control = A.no_de_control AND H.materia = M.materia AND M.tipo_materia in (1,2,3) AND H.materia = MC.materia AND A.carrera = MC.carrera 
+            AND A.reticula = MC.reticula AND A.carrera = C.carrera and A.reticula = C.reticula
+                LOOP
+                    -- Inicializo variables
+					materias_cursadas:= 0; 
+                    materias_aprobadas:= 0; 
+                    materias_reprobadas:= 0; 
+                    materias_a_especial:= 0; 
+                    materias_especial_reprobado:= 0; 
+                    creditos_cursados:= 0; 
+                    creditos_aprobados:= 0; 
+                    creditos_reprobados:= 0; 
+                    suma_calificacion:= 0; 
+                    suma_calificacion_ponderada:= 0; 
+                    indice:= 0.00; 
+                    creditos_promedio:= 0; 
+                    materias_promedio:= 0; 
+                    promedio_ponderado:= 0.00; 
+                    promedio_aritmetico:= 0;          
+                    creditos_aprobados_a:= 0; 
+                    creditos_cursados_a:= 0; 
+                    suma_calificacion_a:= 0; 
+                    suma_calificacion_ponderada_a:= 0; 
+                    suma_calificacion_certificado:= 0; 
+                    creditos_reprobados_a:= 0; 
+                    materias_promedio_certificado:= 0; 
+                    indice_a:= 0.00; 
+                    creditos_promedio_a:= 0; 
+                    materias_promedio_a:= 0; 
+                    promedio_ponderado_a:= 0.00; 
+                    promedio_aritmetico_a:= 0.00; 
+                    promedio_certificado:= 0;
+                    IF historia.periodo=peri THEN
+                    	IF historia.tipo_evaluacion not in ('RU', 'RC', 'EE', 'EA') THEN -- Materias cursadas 
+                        	materias_cursadas:= materias_cursadas + 1; 
+                            creditos_cursados:= creditos_cursados + historia.creditos_materia;
+                        END IF;
+                        IF historia.calificacion >= 70 OR (historia.calificacion >= 60 AND historia.tipo_evaluacion in ('RC','RU')) THEN    
+                            creditos_aprobados:= creditos_aprobados + historia.creditos_materia;     -- Materia Aprobada          
+                        ELSE             
+                            materias_reprobadas:= materias_reprobadas + 1;
+                            creditos_reprobados:= creditos_reprobados + historia.creditos_materia;  --Materia Reprobada 
+                            IF historia.tipo_evaluacion = 'EE' THEN
+                            	materias_especial_reprobado:= materias_especial_reprobado + 1;   -- Especial Reprobado 
+                            ELSIF historia.tipo_evaluacion IN ('O2', 'R2') THEN
+                                materias_a_especial = materias_a_especial + 1;    -- Materia a Especial
+                            END IF;
+                        END IF;
+                        IF historia.tipo_evaluacion != 'RU' THEN   -- Para todas las materias que no son de Equivalencia             
+                            suma_calificacion:= suma_calificacion + historia.calificacion;
+                            materias_promedio:= materias_promedio + 1; 
+                            suma_calificacion_ponderada:= suma_calificacion_ponderada + (historia.calificacion * historia.creditos_materia);
+                            creditos_promedio:= creditos_promedio + historia.creditos_materia; 
+                        END IF;
+                    END IF;
+                    -- Inicia analisis para acumulados 
+                    IF historia.tipo_evaluacion != 'RU' THEN    -- Elimina Materias en Equivalencia  
+                        IF historia.tipo_evaluacion not in ('EE','EA','RC') THEN 
+                            creditos_cursados_a:= creditos_cursados_a + historia.creditos_materia;
+                        END IF;
+                        IF (historia.calificacion >= 70) OR (historia.calificacion < 70 AND ( (historia.estatus_materia = 'R') OR (historia.periodo_acredita_materia > historia.periodo))) THEN
+                            suma_calificacion_a:= suma_calificacion_a + historia.calificacion;
+                            materias_promedio_a:= materias_promedio_a + 1; 
+                            suma_calificacion_ponderada_a:= suma_calificacion_ponderada_a + (historia.calificacion * historia.creditos_materia);
+                            creditos_promedio_a:= creditos_promedio_a + historia.creditos_materia; 
+                            IF historia.calificacion < 70 THEN 
+                               creditos_reprobados_a:= creditos_reprobados_a + historia.creditos_materia;
+                            END IF;
+                        END IF; 
+                        IF historia.calificacion >= 70 THEN
+                            suma_calificacion_certificado:= suma_calificacion_certificado + historia.calificacion;
+                            materias_promedio_certificado:= materias_promedio_certificado + 1;
+                            creditos_aprobados_a:= creditos_aprobados_a + historia.creditos_materia;
+                        END IF; 
+                    END IF; 
+                    -- Fin analisis para acumulados 
+                    -- Inician Calculos para el periodo
+                    IF creditos_promedio > 0 THEN -- Curso Materias en el Periodo, Obtiene Promedio, Aritmético y Ponderado 
+                        promedio_ponderado:= suma_calificacion_ponderada / creditos_promedio;
+                        promedio_aritmetico:= suma_calificacion / materias_promedio;
+                        IF creditos_reprobados > 0 THEN  -- Si es afirmativo, calcula indice de reprobación por periodo 
+                        	indice:=  creditos_reprobados / creditos_promedio;
+                        ELSE 
+                            indice:= 0.00; 
+                        END IF; 
+                    ELSE 
+                        promedio_ponderado:= 0.00;
+                        promedio_aritmetico:= 0.00;
+                        IF materias_especial_reprobado > 0 THEN
+                           estatus_periodo:= 'X'; 
+                        ELSIF materias_a_especial >= 2 THEN
+                           estatus_periodo:= 'T';
+                        ELSIF creditos_reprobados > 0 THEN
+                           estatus_periodo:= 'I';
+                        ELSE 
+                           estatus_periodo:= 'R';
+                        END IF;
+                    END IF;
+                    -- Finalizan Calculos para el periodo  
+                    -- Inician Calculos para acumulados
+                    IF creditos_promedio_a > 0 THEN -- Curso Materias, Obtiene Promedio, Aritmético, Ponderado, de Certificado e Indice de reprobación
+                        promedio_ponderado_a:= suma_calificacion_ponderada_a / creditos_promedio_a; 
+                        promedio_aritmetico_a:= suma_calificacion_a / materias_promedio_a;         
+                        IF materias_promedio_certificado > 0 THEN
+                        	promedio_certificado:= suma_calificacion_certificado / materias_promedio_certificado;
+                        ELSE 
+                            promedio_certificado:= 0.00; 
+                        END IF;
+                    	IF creditos_reprobados_a > 0 THEN  -- Si es afirmativo, calcula indice de reprobación
+                        	indice_a:= creditos_reprobados_a / creditos_promedio_a;
+                        ELSE 
+                            indice_a:= 0.00; 
+                        END IF;
+                    ELSE 
+                        promedio_ponderado_a:= 0.00; 
+                        promedio_aritmetico_a:= 0.00; 
+                        indice_a:= 0.00; 
+                        promedio_certificado:= 0.00; 
+                    END IF; 
+                    INSERT INTO "ITE".acumulado_historico(periodo,no_de_control,estatus_periodo_alumno,creditos_cursados,
+														  creditos_aprobados,promedio_ponderado,promedio_ponderado_acumulado,
+														  promedio_aritmetico,promedio_aritmetico_acumulado,promedio_certificado,
+														  materias_cursadas, materias_reprobadas, materias_a_examen_especial, 
+														  materias_especial_reprobadas,indice_reprobacion_semestre,creditos_autorizados,
+														  indice_reprobacion_acumulado) 
+                    VALUES(historia.periodo, historia.no_de_control, estatus_periodo, creditos_cursados, creditos_aprobados, 
+						   promedio_ponderado, promedio_ponderado_a, promedio_aritmetico,promedio_aritmetico_a, 
+						   promedio_certificado, materias_cursadas, materias_reprobadas, materias_a_especial, 
+						   materias_especial_reprobado, indice, 0, indice_a); 
+                    UPDATE "ITE".alumnos SET promedio_aritmetico_acumulado = promedio_aritmetico_a, creditos_aprobados = creditos_aprobados_a, 
+					creditos_cursados = creditos_cursados_a, promedio_final_alcanzado = promedio_certificado 
+					WHERE no_de_control = historia.no_de_control;
+                END LOOP;
+            DROP TABLE histo;
+        END LOOP;
+RETURN 1 as fin; 
+END;
+
+$BODY$;
+ALTER FUNCTION "ITE".pap_promedios_alumno(character varying)
+    OWNER TO amaterasu;

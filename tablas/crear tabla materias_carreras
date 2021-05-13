@@ -1,0 +1,16 @@
+create table "ITE".materias_carreras (
+	carrera                         "T_carrera"                          not null  ,
+	reticula                        "T_reticula"                         not null  ,
+	materia                         "T_materia"                          not null  ,
+	creditos_materia                smallint                                 null  ,
+	horas_teoricas                  smallint                             not null  ,
+	horas_practicas                 smallint                             not null  ,
+	orden_certificado               smallint                                 null  ,
+	semestre_reticula               smallint                             not null  ,
+	creditos_prerrequisito          smallint                                 null  ,
+	especialidad                    "T_especialidad"                         null  ,
+	clave_oficial_materia           character(10)                            null  ,
+	renglon                         smallint                                 null   
+);
+ALTER TABLE "ITE".materias_carreras
+    OWNER to amaterasu;

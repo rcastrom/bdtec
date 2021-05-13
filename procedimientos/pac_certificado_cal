@@ -1,0 +1,26 @@
+CREATE FUNCTION "ITE".pac_certificado_cal(IN control character varying) 
+
+RETURNS TABLE(nombre_completo_materia character varying, periodo "ITE"."T_periodo", no_de_control "ITE"."T_no_de_control", materia "ITE"."T_materia",grupo character(3), calificacion "ITE"."T_calificacion",tipo_evaluacion character(2), fecha_calificacion timestamp without time zone, plan_de_estudios character(1), estatus_materia character(1), nopresento character(1), periodo_acrdita_materia "ITE"."T_periodo", creditos_materia smallint,orden_certificado smallint)
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+BEGIN
+	CREATE TEMPORARY TABLE histo AS
+	SELECT historia_alumno.periodo, historia_alumno.no_de_control, historia_alumno.materia, historia_alumno.grupo, historia_alumno.calificacion, historia_alumno.tipo_evaluacion, historia_alumno.fecha_calificacion, historia_alumno.plan_de_estudios, historia_alumno.estatus_materia, historia_alumno.nopresento,historia_alumno.usuario, historia_alumno.fecha_actualizacion, historia_alumno.periodo_acredita_materia 
+	FROM "ITE".historia_alumno WHERE historia_alumno.no_de_control=control and historia_alumno.calificacion>=60;
+ 
+	RETURN QUERY
+	SELECT DISTINCT(M.nombre_completo_materia),H.periodo, H.no_de_control, M.materia, H.grupo, H.calificacion, H.tipo_evaluacion, H.fecha_calificacion as fecha_calificacion, H.plan_de_estudios, H.estatus_materia, H.nopresento, H.periodo_acredita_materia ,MC.creditos_materia, MC.orden_certificado
+ 	FROM histo H, "ITE".materias M, "ITE".materias_carreras MC, "ITE".alumnos A
+ where H.no_de_control=A.no_de_control 
+ and A.carrera=MC.carrera and A.reticula=MC.reticula and H.materia=MC.materia 
+ and H.materia=M.materia
+ and MC.creditos_materia>0
+ ORDER BY M.nombre_completo_materia, MC.orden_certificado, M.materia;
+
+	DROP TABLE histo;
+
+END
+$BODY$;
+ALTER FUNCTION "ITE".pac_certificado_cal(character varying)
+    OWNER TO amaterasu;

@@ -1,0 +1,29 @@
+CREATE OR REPLACE FUNCTION "ITE".pap_curso_especial(IN peri character varying) 
+RETURNS void
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+-- Inicializo variables
+DECLARE
+    rec record;
+	cantidad integer:=0; 
+BEGIN	
+    -- Obtener materias en especial 
+	FOR rec IN SELECT SM.no_de_control,SM.materia, SM.calificacion FROM "ITE".seleccion_materias SM, "ITE".alumnos A WHERE SM.periodo=peri AND
+        SM.no_de_control=A.no_de_control AND (A.plan_de_estudios='3' OR A.plan_de_estudios='4') AND SM.repeticion='S'
+        LOOP
+             SELECT COUNT(*) INTO cantidad FROM "ITE".historia_alumno HA WHERE HA.no_de_control=rec.no_de_control AND HA.materia=rec.materia AND HA.calificacion=0;
+             IF cantidad=3 AND rec.calificacion=0 THEN
+                UPDATE "ITE".alumnos SET estatus_alumno='BDR' WHERE alumnos.no_de_control=rec.no_de_control;
+                INSERT INTO "ITE".baja_cespeciales(periodo, no_de_control, materia) VALUES(peri, rec.no_de_control, rec.materia);
+             ELSIF cantidad=2 AND rec.calificacion >=70 THEN
+                UPDATE "ITE".seleccion_materias SM SET tipo_evaluacion='CE' WHERE SM.periodo=peri AND SM.no_de_control=rec.no_de_control AND SM.materia=rec.materia;
+			    UPDATE "ITE".historia_alumno HA SET tipo_evaluacion='CE' WHERE HA.periodo=peri and HA.no_de_control=rec.no_de_control AND HA.materia=rec.materia;
+             END IF;
+             
+        END LOOP;
+END;
+
+$BODY$;
+ALTER FUNCTION "ITE".pap_curso_especial(character varying)
+    OWNER TO amaterasu;

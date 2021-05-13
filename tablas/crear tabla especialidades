@@ -1,0 +1,16 @@
+CREATE TABLE "ITE".especialidades
+(
+    especialidad "T_especialidad" NOT NULL,
+    carrera "T_carrera" NOT NULL,
+    reticula "T_reticula" NOT NULL,
+    nombre_especialidad character varying(100) NOT NULL,
+    creditos_optativos smallint,
+    creditos_especialidad smallint NOT NULL,
+    activa boolean
+)
+WITH (
+    OIDS = FALSE
+);
+
+ALTER TABLE "ITE".especialidades
+    OWNER to amaterasu;

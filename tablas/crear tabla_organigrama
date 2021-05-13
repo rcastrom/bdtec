@@ -1,0 +1,8 @@
+create table "ITE".organigrama (
+	clave_area                      char(6)                          not null  ,
+	descripcion_area                varchar(200)                         null  ,
+	area_depende                    char(6)                              null  ,
+	siglas                          char(5)                              null   
+);
+ALTER TABLE "ITE".organigrama
+    OWNER to amaterasu;

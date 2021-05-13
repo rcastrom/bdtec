@@ -1,0 +1,36 @@
+CREATE TABLE "ITE".socioecono (
+	nivel_estudios_padre            int                           null  ,
+	nivel_estudios_madre            int                           null  ,
+	con_quien_vives                 int                           null  ,
+	ingresos_padre                  int                           null  ,
+	ingresos_madre                  int                           null  ,
+	ingresos_hermanos               int                           null  ,
+	ingresos_propios                int                           null  ,
+	total_ingresos                  int                           null  ,
+	ocupacion_padre                 int                           null  ,
+	ocupacion_madre                 int                           null  ,
+	de_quien_dependes               int                           null  ,
+	casa_vives                      char(1)                       null  ,
+	cuartos_casa                    int                           null  ,
+	personas_casa                   int                           null  ,
+	personas_dependen               int                           null  ,
+	tipo_sangre                     char(20)                      not null  ,
+	comunicar_con                   char(80)                      null  ,
+	calle_no                        char(80)                      null  ,
+	colonia                         char(40)                      null  ,
+	codigo_postal                   char(5)                       null  ,
+	municipio                       "ITE"."T_ciudad"              null  ,
+	entidad_federativa              "ITE"."T_lugar_nac"           null  ,
+	telefono                        char(30)                      null  ,
+	lugar_trabajo                   char(50)                      null  ,
+	telefono_trabajo                char(30)                      null  ,
+	no_solicitud                    int                           not null  ,
+	periodo                         "ITE"."T_periodo"             not null  ,
+	created_at                      timestamp without time zone   null  ,
+	updated_at                      timestamp without time zone   null  ,
+	tipo_alergia                    varchar(200)                  null  ,
+	enfermedad                      varchar(200)                  null   
+
+);
+ALTER TABLE "ITE".socioecono
+    OWNER to amaterasu;

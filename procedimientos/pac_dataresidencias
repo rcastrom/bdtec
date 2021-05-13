@@ -1,0 +1,34 @@
+CREATE FUNCTION "ITE".pac_dataresidencias(IN peri character varying, IN quien character varying)
+    RETURNS TABLE(no_de_control "ITE"."T_no_de_control", apellido_paterno "ITE"."T_apellidos_persona",apellido_materno "ITE"."T_apellidos_persona",nombre_alumno character varying,plan_de_estudios character(1),calificacion "ITE"."T_calificacion",materia "ITE"."T_materia",grupo character(3))
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+
+BEGIN
+	
+    -- Obtener informacion de residencias
+	CREATE TEMP TABLE IF NOT EXISTS info_grupos AS 
+	SELECT seleccion_materias.no_de_control, alumnos.apellido_paterno, alumnos.apellido_materno, alumnos.nombre_alumno,
+    alumnos.plan_de_estudios, seleccion_materias.calificacion, seleccion_materias.materia, seleccion_materias.grupo FROM
+    "ITE".seleccion_materias, "ITE".materias, "ITE".grupos, "ITE".alumnos
+	WHERE nombre_abreviado_materia LIKE 'RESIDENCIA%' 
+	AND materias.materia=grupos.materia
+	AND grupos.periodo=peri
+	AND seleccion_materias.periodo=grupos.periodo
+	AND seleccion_materias.materia=grupos.materia
+	AND seleccion_materias.grupo=grupos.grupo
+	AND grupos.rfc=quien
+	AND seleccion_materias.no_de_control=alumnos.no_de_control;
+
+    RETURN QUERY SELECT info_grupos.no_de_control, info_grupos.apellido_paterno, info_grupos.apellido_materno, info_grupos.nombre_alumno, info_grupos.plan_de_estudios, info_grupos.calificacion, info_grupos.materia,info_grupos.grupo 
+    FROM info_grupos;
+
+	DROP TABLE info_grupos;
+	
+	
+END
+
+$BODY$;
+
+ALTER FUNCTION "ITE".pac_dataresidencias(character varying, character varying)
+    OWNER TO amaterasu;

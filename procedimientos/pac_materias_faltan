@@ -1,0 +1,24 @@
+CREATE FUNCTION "ITE".pac_materias_faltan(IN peri character varying)
+    RETURNS TABLE(materia "ITE"."T_materia",grupo character(3),apellidos_empleado character(200),nombre_empleado character(100),nombre_abreviado_materia character varying(40))
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+
+BEGIN
+	  
+
+    RETURN QUERY SELECT DISTINCT(SM.materia),SM.grupo, P.apellidos_empleado,P.nombre_empleado,M.nombre_abreviado_materia 
+FROM "ITE".seleccion_materias SM, "ITE".horarios H, "ITE".personal P, "ITE".materias M
+WHERE SM.periodo=peri and SM.calificacion IS NULL
+AND SM.materia=H.materia AND SM.grupo=H.grupo
+AND SM.materia=M.materia
+AND H.periodo=SM.periodo AND H.rfc=P.rfc
+ORDER BY apellidos_empleado,nombre_empleado, nombre_abreviado_materia; 
+	
+	
+END
+
+$BODY$;
+
+ALTER FUNCTION "ITE".pac_materias_faltan(character varying)
+    OWNER TO amaterasu;

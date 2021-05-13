@@ -1,0 +1,82 @@
+CREATE FUNCTION "ITE".pac_verifica_repite(IN control character varying, IN peri character varying)
+    RETURNS TABLE(adeudo smallint, seleccionadas smallint, pendientes smallint, ofertados smallint)
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+DECLARE
+carre character varying;
+reti smallint;
+repite smallint;
+seleccionadas smallint;
+ofertadas smallint;
+diferencia smallint;
+
+
+BEGIN
+	SELECT carrera FROM alumnos WHERE no_de_control=control into carre;
+	SELECT reticula FROM alumnos WHERE no_de_control=control into reti;
+	
+    -- Obtener materias en repetición acreditadas
+	CREATE TEMP TABLE IF NOT EXISTS repites_acreditadas AS 
+	select historia_alumno.materia
+	from historia_alumno 
+	where historia_alumno.no_de_control=control and historia_alumno.tipo_evaluacion IN('CE','RO','RP','R1','R2') and calificacion>=70;
+
+    -- Obtengo las materias en especial
+	CREATE TEMP TABLE IF NOT EXISTS especiales AS 
+	select historia_alumno.materia
+ 	from historia_alumno 
+	where historia_alumno.no_de_control=control and historia_alumno.tipo_evaluacion IN ('RO','RP','R1','R2') and historia_alumno.calificacion<70 
+    AND historia_alumno.materia NOT IN (SELECT materia FROM repites_acreditadas);
+
+    -- Unir informacion
+	CREATE TEMP TABLE IF NOT EXISTS union_descartados AS 
+	select repites_acreditadas.materia from repites_acreditadas
+ 	union
+    select especiales.materia from especiales;
+
+    -- Obtengo las materias en repeticion
+    CREATE TEMP TABLE IF NOT EXISTS adeudo_repite AS 
+	select historia_alumno.materia
+	from historia_alumno
+	where historia_alumno.no_de_control=control and historia_alumno.calificacion < 70 
+    and historia_alumno.tipo_evaluacion IN ('OC','OO','1','2') AND historia_alumno.materia NOT IN (SELECT materia FROM union_descartados);
+
+    -- Obtengo las materias ya fueron seleccionadas
+	CREATE TEMP TABLE IF NOT EXISTS materias_seleccionadas AS 
+	select seleccion_materias.materia
+	from seleccion_materias
+	where seleccion_materias.no_de_control = control AND seleccion_materias.periodo=peri  
+    AND seleccion_materias.materia IN (SELECT materia FROM adeudo_repite);
+
+    CREATE TEMP TABLE IF NOT EXISTS materias_ofertadas AS 
+	select distinct(grupos.materia)
+	from grupos
+	where grupos.periodo = peri AND grupos.exclusivo_carrera = carre AND grupos.exclusivo_reticula = reti 
+    AND grupos.materia IN (SELECT materia FROM adeudo_repite);
+
+    CREATE TEMPORARY TABLE resultados(adeudo smallint, seleccionadas smallint, pendientes smallint, ofertados smallint);
+
+    SELECT COUNT(*) FROM adeudo_repite INTO repite;
+    SELECT COUNT(*) FROM materias_seleccionadas INTO seleccionadas;
+    SELECT COUNT(*) FROM materias_ofertadas INTO ofertadas;
+    diferencia := repite - seleccionadas;
+	
+    INSERT INTO resultados(adeudo,seleccionadas,pendientes,ofertados) VALUES (repite, seleccionadas, diferencia, ofertadas);
+
+    RETURN QUERY SELECT resultados.adeudo,resultados.seleccionadas,resultados.pendientes,resultados.ofertados FROM resultados;
+
+	DROP TABLE repites_acreditadas;
+	DROP TABLE especiales;		
+    DROP TABLE union_descartados;
+    DROP TABLE adeudo_repite;
+	DROP TABLE materias_seleccionadas;
+	DROP TABLE materias_ofertadas;
+    DROP TABLE resultados;
+	
+END
+
+$BODY$;
+
+ALTER FUNCTION "ITE".pac_verifica_repite(character varying, character varying)
+    OWNER TO amaterasu;

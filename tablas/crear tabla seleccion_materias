@@ -1,0 +1,15 @@
+create table "ITE".seleccion_materias (
+	periodo                         "T_periodo"                        not null  ,
+	no_de_control                   "T_no_de_control"                  not null  ,
+	materia                         "T_materia"                        not null  ,
+	grupo                           character(3)                       not null  ,
+	calificacion                    "T_calificacion"                       null  ,
+	tipo_evaluacion                 character(2)                           null  ,
+	repeticion                      character(1)                           null  ,
+	nopresento                      character(1)                           null  ,
+	status_seleccion                character(1)                           null  ,
+	fecha_hora_seleccion            timestamp without time zone            null  ,
+	global                          character(1)                           null   
+);
+ALTER TABLE "ITE".seleccion_materias
+    OWNER to amaterasu;

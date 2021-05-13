@@ -1,0 +1,32 @@
+create table "ITE".avisos_reinscripcion (
+	periodo                         "T_periodo"                      not null  ,
+	no_de_control                   "T_no_de_control"                not null  ,
+	autoriza_escolar                char(1)                              null  ,
+	recibo_pago                     char(10)                             null  ,
+	fecha_recibo                    date                                 null  ,
+	cuenta_pago                     varchar(250)                         null  ,
+	fecha_hora_seleccion            date                                 null  ,
+	lugar_seleccion                 varchar(250)                         null  ,
+	fecha_hora_pago                 date                                 null  ,
+	lugar_pago                      varchar(250)                         null  ,
+	adeuda_escolar                  char(1)                              null  ,
+	adeuda_biblioteca               char(1)                              null  ,
+	adeuda_financieros              char(1)                              null  ,
+	otro_mensaje                    varchar(250)                         null  ,
+	baja                            char(1)                              null  ,
+	motivo_aviso_baja               varchar(250)                         null  ,
+	egresa                          char(1)                              null  ,
+	encuesto                        char(1)                              null  ,
+	vobo_adelanta_sel               char(1)                              null  ,
+	regular                         char(1)                              null  ,
+	indice_reprobacion              float(16)                            null  ,
+	creditos_autorizados            int                                  null  ,
+	estatus_reinscripcion           char(1)                              null  ,
+	semestre                        int                                  null  ,
+	promedio                        int                                  null  ,
+	adeudo_especial                 char(1)                              null  ,
+	promedio_acumulado              "T_promedio"                         null  ,
+	proareas                        char(1)                              null   
+);
+ALTER TABLE "ITE".avisos_reinscripcion
+    OWNER to amaterasu;

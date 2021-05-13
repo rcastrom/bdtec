@@ -1,0 +1,167 @@
+CREATE OR REPLACE FUNCTION "ITE".pap_avisos_reinscripcion(IN peri character varying, IN per_aviso character varying) 
+RETURNS void
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+-- Inicializo variables
+DECLARE
+    rec record;
+	semestre integer:=0; 
+    semestre_0 integer:=0;
+    creda integer:=0; 
+    credc integer:=0; 
+    credt integer:=0; 
+    matc integer:=0; 
+    matr integer:=0; 
+    indice float:=0.00; 
+    escolar char(1); 
+    biblioteca char(1); 
+    financieros char(1); 
+    baja char(1):='N'; 
+    motivo_baja character varying; 
+    mata integer:=0; 
+    egresar char(1):='N'; 
+    encuesto char(1);          
+    vobo char(1):='N'; 
+    regular char(1):='S'; 
+    credauto integer:=0; 
+    promedio numeric(5,2):=0.00; 
+    prom_acum numeric(5,2):=0.00;
+    carga_max integer:=0; 
+    carga_min integer:=0; 
+    credcarr integer:=0; 
+    valor integer:=0; 
+    adeuda_esp char(1):='N'; 
+    estatus char(3); 
+    msgi character varying; 
+    especiales_cursados integer:=0; 
+    en_especial integer:=0;
+    semini integer:=0;
+    anioini integer:=0; 
+    perini integer:=0;
+    perrev integer:=0;
+	cuando timestamp without time zone;
+BEGIN	
+--Alumnos del periodo en cuestion
+    FOR rec IN SELECT DISTINCT SM.no_de_control FROM "ITE".seleccion_materias SM WHERE SM.periodo=peri
+        LOOP
+            IF EXISTS (SELECT 1 FROM "ITE".evaluacion_alumnos EA WHERE EA.periodo=peri AND EA.no_de_control=rec.no_de_control) THEN
+                encuesto:='S';
+            ELSE
+                encuesto:='N';
+            END IF;
+            SELECT AH.indice_reprobacion_acumulado,creditos_aprobados,creditos_cursados,materias_cursadas,materias_reprobadas,promedio_aritmetico,promedio_aritmetico_acumulado,
+                CASE WHEN AH.promedio_aritmetico BETWEEN 80.0 and 100 THEN creditos_cursados + 8
+                WHEN promedio_aritmetico BETWEEN 70.0 and 79.999 THEN creditos_cursados
+                WHEN promedio_aritmetico BETWEEN 60.0 and 69.999 THEN creditos_cursados - 4
+                WHEN promedio_aritmetico BETWEEN 50.0 and 59.999 THEN creditos_cursados - 8
+                ELSE creditos_cursados - 10 END
+            INTO indice,creda,credc,mata,matr,promedio,prom_acum,credauto FROM "ITE".acumulado_historico AH WHERE AH.no_de_control=rec.no_de_control AND AH.periodo=peri;
+            SELECT SUM(AH.creditos_aprobados) INTO credt FROM "ITE".acumulado_historico AH WHERE AH.no_de_control=rec.no_de_control;
+             -- Adeudo con Servicios Escolares
+			 /*
+             IF EXISTS (SELECT 1 FROM "ITE".adeudos AD WHERE AD.periodo=peri AND AD.no_de_control=rec.no_de_control AND AD.tipo='E') THEN
+                escolar:='S';
+             ELSE
+                escolar:='N';
+             END IF;
+
+             -- Adeudo con Centro de Información (Biblioteca)
+             IF EXISTS (SELECT 1 FROM "ITE".adeudos AD WHERE AD.periodo=peri AND AD.no_de_control=rec.no_de_control AND AD.tipo='B') THEN
+                biblioteca:='S';
+             ELSE
+                biblioteca:='N';
+             END IF;
+             
+             -- Adeudo con Recursos Financieros
+             IF EXISTS (SELECT 1 FROM "ITE".adeudos AD WHERE AD.periodo=peri AND AD.no_de_control=rec.no_de_control AND AD.tipo='F') THEN
+                financieros:='S';
+             ELSE
+                financieros:='N';
+             END IF;
+             */
+			 escolar:='N';
+			 biblioteca:='N';
+			 financieros:='N';
+             vobo:='N'; -- Inicializa la variable que define el vo.bo. del director para avance
+
+             -- Selecciono los creditos totales, carga máxima y carga mínima de la carrera del alumno
+             SELECT C.creditos_totales, C.carga_maxima, C.carga_minima INTO credcarr,carga_max,carga_min FROM "ITE".carreras C, "ITE".alumnos A 
+             WHERE C.carrera=A.carrera and C.reticula=A.reticula AND A.no_de_control=rec.no_de_control;
+             
+             -- Se definen los créditos autorizados
+             IF credauto < carga_min THEN
+                credauto:=carga_min;
+             ELSIF credauto > carga_max THEN
+                credauto:=carga_max;
+             END IF;
+			 
+             -- Se calcula semestre del alumno
+             IF SUBSTRING(peri,5,1) = '3' THEN        
+                 semini:=2;        
+             ELSE        
+                 semini:=1;
+             END IF;
+            SELECT SUBSTRING(A.periodo_ingreso_it,1,4)::INTEGER,SUBSTRING(A.periodo_ingreso_it,5,1)::INTEGER, A.periodos_revalidacion        
+            INTO anioini,perini,perrev FROM "ITE".alumnos A WHERE A.no_de_control = rec.no_de_control;
+            semestre_0:= 2 * (SUBSTRING(peri,1,4)::INTEGER - anioini);        
+            IF perini=3 THEN
+                semestre:= semestre_0 + (semini - perini + 2 + perrev);
+            ELSE 
+                semestre:= semestre_0 + (semini - perini + 1 + perrev);
+            END IF;
+            IF semestre < 0 THEN
+                semestre:= 0;
+            END IF;
+            --REPROBACION DE MAS DE 50% DE CREDITOS PARA NUEVO INGRESO EN PRIMER SEMESTRE
+            IF (semestre=1) AND ((mata - matr) < 3) THEN
+                baja:='S';
+                motivo_baja:='REPROBACION DE MAS DE 3 MATERIAS PARA NUEVO INGRESO EN PRIMER SEMESTRE';
+                estatus:='BD2';
+                egresar:='N';
+            ELSIF semestre > 12 THEN
+                baja:='S';
+                motivo_baja:='EXCEDE MAS DE 12 SEMESTRES PERMITIDOS';
+                estatus:='BD4';
+            ELSE
+				baja:='N';
+				motivo_baja:='';
+			    estatus:='ACT';
+				egresar:='N';
+            END IF;
+            IF credt >=credcarr THEN
+                egresar:='S';
+            END IF;
+            --Si es regular
+            IF EXISTS (SELECT 1 from "ITE".historia_alumno HA WHERE HA.no_de_control = rec.no_de_control AND HA.periodo <= peri AND HA.calificacion < 70 
+              AND HA.materia NOT IN (SELECT HA.materia FROM "ITE".historia_alumno HA WHERE HA.calificacion >= 70 
+              AND HA.no_de_control = rec.no_de_control AND periodo <= peri)) THEN
+                regular:= 'N';
+            ELSE
+                regular:='S';
+            END IF;
+            SELECT COUNT(*) INTO especiales_cursados FROM "ITE".historia_alumno WHERE historia_alumno.no_de_control=rec.no_de_control AND historia_alumno.tipo_evaluacion='CE';
+            SELECT COUNT(*) INTO en_especial FROM "ITE".historia_alumno HA WHERE HA.no_de_control=rec.no_de_control AND HA.tipo_evaluacion IN ('RO', 'RP') AND HA.materia NOT IN (
+                SELECT HA.materia FROM "ITE".historia_alumno HA WHERE HA.no_de_control=rec.no_de_control AND HA.tipo_evaluacion='CE' AND HA.calificacion >=70) AND HA.calificacion < 70;
+            IF (especiales_cursados + en_especial) > 5 THEN
+                baja:='S';
+                motivo_baja:='EXCEDE DEL MAXIMO NUMERO DE CURSOS ESPECIALES PERMITIDOS';
+                adeuda_esp:='S';
+                estatus:='BD7';
+                egresar:='N';
+            END IF;
+            IF en_especial >=1 THEN
+                credauto:=carga_max;
+            END IF;
+            SELECT now() AT TIME ZONE current_setting('timezone') INTO cuando;
+            INSERT INTO "ITE".avisos_reinscripcion (periodo, no_de_control, autoriza_escolar,recibo_pago,fecha_recibo,cuenta_pago,fecha_hora_seleccion,lugar_seleccion,fecha_hora_pago,adeuda_escolar, adeuda_biblioteca, adeuda_financieros, otro_mensaje,baja, motivo_aviso_baja, 
+ egresa, encuesto, vobo_adelanta_sel, regular, indice_reprobacion, creditos_autorizados, estatus_reinscripcion,semestre, promedio, adeudo_especial,promedio_acumulado,proareas,created_at,updated_at) 
+            VALUES
+            (per_aviso, rec.no_de_control, 'N',null,null,null,null,null,null,escolar, biblioteca, financieros,null, baja, motivo_baja, egresar, encuesto, vobo, regular, indice, credauto, null,semestre, promedio, adeuda_esp,prom_acum,null,cuando,null);
+            UPDATE "ITE".alumnos SET estatus_alumno=estatus WHERE alumnos.no_de_control=rec.no_de_control;
+        END LOOP;
+END;
+
+$BODY$;
+ALTER FUNCTION "ITE".pap_avisos_reinscripcion(character varying,character varying)
+    OWNER TO amaterasu;

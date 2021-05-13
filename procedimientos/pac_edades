@@ -1,0 +1,14 @@
+CREATE FUNCTION "ITE".pac_edades(IN peri character varying,IN genero character varying) 
+
+RETURNS TABLE(no_de_control "ITE"."T_no_de_control",edad double precision,semestre smallint)
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+BEGIN
+	RETURN QUERY SELECT distinct(SM.no_de_control), date_part('year',current_date)-date_part('year',fecha_nacimiento) as edad, 
+A.semestre FROM "ITE".alumnos A, "ITE".seleccion_materias SM WHERE SM.periodo=peri and sexo=genero 
+and SM.no_de_control=A.no_de_control;
+END
+$BODY$;
+ALTER FUNCTION "ITE".pac_edades(character varying,character varying)
+    OWNER TO amaterasu;

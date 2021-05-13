@@ -1,0 +1,58 @@
+CREATE FUNCTION "ITE".pac_horario(IN control character varying, IN peri character varying)
+    RETURNS TABLE(mat character varying, nmateria character varying, gpo character(3), ndocente character varying, creditos smallint)
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+DECLARE
+carre character varying;
+reti smallint;
+nmateria character varying;
+nrfc character varying;
+nombre_doc character varying;
+credi smallint;
+rec record;
+
+BEGIN
+	SELECT carrera FROM alumnos WHERE no_de_control=control into carre;
+	SELECT reticula FROM alumnos WHERE no_de_control=control into reti;
+	
+    -- Se crea la tabla del horario
+	CREATE TEMPORARY TABLE horario(
+    mat character varying, 
+    nmateria character varying, 
+    gpo character(3), 
+    ndocente character varying,
+    creditos smallint
+    );
+
+   --Se leen los datos
+    FOR rec IN SELECT materia, grupo FROM seleccion_materias WHERE periodo=peri AND no_de_control=control 
+    LOOP
+        --Obtener nombre materia
+        SELECT materias.nombre_completo_materia FROM materias,materias_carreras WHERE materias_carreras.materia=materias.materia AND materias_carreras.carrera=carre 
+        AND materias_carreras.reticula=reti AND materias_carreras.materia=rec.materia INTO nmateria;
+        --Obtener nombre docente
+        SELECT grupos.rfc FROM grupos WHERE grupos.periodo=peri AND grupos.materia=rec.materia AND grupos.grupo=rec.grupo INTO nrfc;
+        IF nrfc IS NULL THEN
+            SELECT CONCAT('PENDIENTE',' ','POR ASIGNAR') INTO nombre_doc;
+        ELSE
+            SELECT CONCAT(personal.apellidos_empleado,' ',personal.nombre_empleado) FROM personal WHERE rfc=nrfc INTO nombre_doc;
+        END IF;
+        --Creditos
+        SELECT materias_carreras.creditos_materia FROM materias_carreras WHERE materias_carreras.materia=rec.materia 
+        AND materias_carreras.carrera=carre AND materias_carreras.reticula=reti INTO credi;
+        --Almacaner
+        INSERT INTO horario(mat,nmateria,gpo,ndocente,creditos) VALUES (rec.materia, nmateria, rec.grupo, nombre_doc, credi);
+    END LOOP;
+    RETURN QUERY SELECT horario.mat, horario.nmateria, horario.gpo, horario.ndocente, horario.creditos FROM horario;
+        
+
+	DROP TABLE horario;		
+	
+	
+END
+
+$BODY$;
+
+ALTER FUNCTION "ITE".pac_horario(character varying, character varying)
+    OWNER TO amaterasu;

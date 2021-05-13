@@ -1,0 +1,21 @@
+create table "ITE".periodos_escolares (
+	periodo                         "T_periodo"                        not null  ,
+	identificacion_larga            character(30)                      not null  ,
+	identificacion_corta            character(12)                          null  ,
+	fecha_inicio                    date                                   null  ,
+	fecha_termino                   date                                   null  ,
+	inicio_vacacional_ss            date                                   null  ,
+	fin_vacacional_ss               date                                   null  ,
+	inicio_especial                 date                                   null  ,
+	fin_especial                    date                                   null  ,
+	cierre_horarios                 char(1)                                null  ,
+	cierre_seleccion                char(1)                                null  ,
+	inicio_sele_alumnos             date                                   null  ,
+	fin_sele_alumnos                date                                   null  ,
+	inicio_vacacional               date                                   null  ,
+	termino_vacacional              date                                   null  ,
+	inicio_cal_docentes             date                                   null  ,
+	fin_cal_docentes                date                                   null  
+);
+ALTER TABLE "ITE".periodos_escolares
+    OWNER to amaterasu;

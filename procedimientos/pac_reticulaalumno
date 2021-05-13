@@ -1,0 +1,131 @@
+CREATE FUNCTION "ITE".pac_reticulaalumno(IN control character varying)
+    RETURNS TABLE(materia "T_materia", nombre_abreviado_materia character varying, creditos_materia smallint, semestre_reticula smallint, renglon smallint, calificacion "T_calificacion",
+		tipo_evaluacion character(2), tipocur text)
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+DECLARE
+carre character varying;
+reti smallint;
+espe  character varying;
+BEGIN
+	SELECT carrera FROM alumnos WHERE no_de_control=control into carre;
+	SELECT reticula FROM alumnos WHERE no_de_control=control into reti;
+	SELECT trim(especialidad) FROM alumnos WHERE no_de_control=control into espe;
+
+	CREATE TEMP TABLE IF NOT EXISTS histoalumno AS 
+	select historia_alumno.periodo, historia_alumno.materia, historia_alumno.calificacion,
+	historia_alumno.tipo_evaluacion, historia_alumno.plan_de_estudios,
+	historia_alumno.estatus_materia 
+	from historia_alumno 
+	where no_de_control=control;
+	CREATE TEMP TABLE IF NOT EXISTS hist1 AS 
+	select histoalumno.materia, histoalumno.calificacion, histoalumno.tipo_evaluacion, 'AC' as tipocur 
+ 	from histoalumno 
+	where histoalumno.calificacion >=60;
+	CREATE TEMP TABLE IF NOT EXISTS esperepro AS 
+	select histoalumno.materia, histoalumno.calificacion, histoalumno.tipo_evaluacion, 'ER' as tipocur
+	from histoalumno 
+	where (histoalumno.calificacion < 70 and histoalumno.tipo_evaluacion in ('EE', 'CE')) 
+	and histoalumno.materia not in (select hist1.materia from hist1);
+	CREATE TEMP TABLE IF NOT EXISTS didacta AS 
+	select count(histoalumno.materia) as contador, histoalumno.materia 
+	from histoalumno 
+	where histoalumno.calificacion <70 group by histoalumno.materia;
+	-- Materias cursadas en Segunda Oportunidad y no Acreditadas 
+	CREATE TEMP TABLE IF NOT EXISTS hist2 AS 
+ 	select histoalumno.materia, histoalumno.calificacion, histoalumno.tipo_evaluacion, 'AE' as tipocur 
+ 	from histoalumno 
+ 	where (histoalumno.calificacion < 70 and histoalumno.tipo_evaluacion in ('O2', 'R2', 'RO', 'RP', 'R1')) --Agregado Ricardo Castro
+ 	and histoalumno.materia not in (select hist1.materia from hist1) 
+ 	and histoalumno.materia not in (select esperepro.materia from esperepro) or histoalumno.materia in 
+	(select histoalumno.materia from histoalumno, didacta 
+	 where histoalumno.tipo_evaluacion='EA' and histoalumno.materia=didacta.materia 
+	 and contador>=2) and histoalumno.materia not in (select hist1.materia from hist1);
+	CREATE TEMP TABLE IF NOT EXISTS hist3 AS 
+	-- Materias cursadas y no Acreditados (En primera o Ex. Especial Autodidacta) y que no tienen segundas 
+ 	select histoalumno.materia, histoalumno.calificacion, histoalumno.tipo_evaluacion, 'CR' as tipocur 
+	from histoalumno 
+ 	where (histoalumno.calificacion < 70 and histoalumno.tipo_evaluacion in ('O1', 'R1', 'E1', 'EA', 'OO', 'OC', '1', '2', 'E2', 'OS')) --Agregado Ricardo Castro
+ 	and histoalumno.materia not in (select hist1.materia from hist1) 
+ 	and histoalumno.materia not in (select hist2.materia from hist2) 
+ 	and histoalumno.materia not in (select esperepro.materia from esperepro) -- Agregado por Licette Rueda 
+ 	union 
+ 	-- Materias a Examen Especial Pendientes 
+ 	select hist2.materia, hist2.calificacion, hist2.tipo_evaluacion, hist2.tipocur 
+ 	from hist2 
+ 	union 
+	-- Materias en Especiales Reprobados 
+ 	select esperepro.materia, esperepro.calificacion, esperepro.tipo_evaluacion, esperepro.tipocur 
+ 	from esperepro;
+	CREATE TEMP TABLE IF NOT EXISTS mathis AS 
+	select hist1.materia, hist1.calificacion, hist1.tipo_evaluacion, hist1.tipocur 
+	from hist1 
+ 	union 
+ 	select hist3.materia, hist3.calificacion, hist3.tipo_evaluacion, hist3.tipocur 
+	from hist3;
+	
+	CREATE TEMP TABLE IF NOT EXISTS reticalu1 AS
+	select MC.materia, M.nombre_abreviado_materia, MC.creditos_materia, 
+	MC.semestre_reticula, MC.renglon, MC.especialidad 
+ 	from materias_carreras MC, materias M 
+	where MC.carrera=carre and MC.reticula=reti
+ 	and MC.materia=M.materia;
+	
+	CREATE TEMP TABLE IF NOT EXISTS reticalu AS
+	select reticalu1.materia, reticalu1.nombre_abreviado_materia, reticalu1.creditos_materia, 
+	reticalu1.semestre_reticula, reticalu1.renglon, mathis.calificacion, mathis.tipo_evaluacion, mathis.tipocur, 
+	reticalu1.especialidad, '00' as cur 
+ 	from reticalu1
+	LEFT JOIN mathis
+	ON (mathis.materia =reticalu1.materia);
+	
+	update reticalu set tipocur='NA' where reticalu.tipocur is NULL
+	and reticalu.semestre_reticula > 9;
+	IF espe IS NULL THEN
+		CREATE TEMP TABLE IF NOT EXISTS reticula AS
+		select reticalu.materia, reticalu.nombre_abreviado_materia, reticalu.creditos_materia, 
+		reticalu.semestre_reticula, reticalu.renglon, reticalu.calificacion,
+		reticalu.tipo_evaluacion, reticalu.tipocur
+ 		from reticalu 
+ 		where reticalu.especialidad is NULL 
+		order by reticalu.materia, reticalu.tipo_evaluacion;
+	ELSE
+		CREATE TEMP TABLE IF NOT EXISTS reticula2 AS
+		select reticalu.materia, reticalu.nombre_abreviado_materia, reticalu.creditos_materia, reticalu.semestre_reticula, reticalu.renglon, reticalu.calificacion,
+		reticalu.tipo_evaluacion, reticalu.tipocur
+ 		from reticalu 
+ 		where reticalu.especialidad is NULL 
+ 		union 
+ 		select reticalu.materia, reticalu.nombre_abreviado_materia, reticalu.creditos_materia, reticalu.semestre_reticula, reticalu.renglon, reticalu.calificacion,
+		reticalu.tipo_evaluacion, reticalu.tipocur 
+ 		from reticalu 
+ 		where reticalu.especialidad in (espe, '');
+	END IF;
+	IF espe IS NULL THEN
+		RETURN QUERY select reticula.materia, reticula.nombre_abreviado_materia, reticula.creditos_materia, reticula.semestre_reticula, reticula.renglon, reticula.calificacion,
+		reticula.tipo_evaluacion, reticula.tipocur 
+		from reticula 
+		order by materia, tipocur;
+	ELSE
+		RETURN QUERY select reticula2.materia, reticula2.nombre_abreviado_materia, reticula2.creditos_materia, reticula2.semestre_reticula, reticula2.renglon, reticula2.calificacion,
+		reticula2.tipo_evaluacion, reticula2.tipocur
+		from reticula2 
+		order by materia, tipocur;
+	END IF;
+	DROP TABLE histoalumno;
+	DROP TABLE hist1;		
+	DROP TABLE esperepro;
+	DROP TABLE didacta;
+	DROP TABLE hist2;
+	DROP TABLE hist3;
+	DROP TABLE mathis;
+	DROP TABLE reticalu1;
+	DROP TABLE reticalu;
+	DROP TABLE reticula2; 
+END
+
+$BODY$;
+
+ALTER FUNCTION "ITE".pac_reticulaalumno(character varying)
+    OWNER TO amaterasu;
