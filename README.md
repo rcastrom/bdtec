@@ -21,4 +21,9 @@ Encontrará las siguientes carpetas:
 * Procedimientos.- Los procedimientos almacenados que se han empleado y se requieren para el proyecto.
 * Trigger.- Las acciones al momento de realizar ingresos hacia las tablas.
 
+## Autores ✒️
+
+* **Ricardo Castro Méndez** - *Trabajo Inicial* - [rcastrom](https://github.com/rcastrom)
+* **Julia Chávez Remigio** - *Colaboradora y revisora* - [jchavez](mailto:jchavez@ite.edu.mx)
+
 
