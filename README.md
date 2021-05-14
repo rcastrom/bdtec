@@ -21,6 +21,9 @@ Encontrará las siguientes carpetas:
 * Procedimientos.- Los procedimientos almacenados que se han empleado y se requieren para el proyecto.
 * Trigger.- Las acciones al momento de realizar ingresos hacia las tablas.
 
+## Wiki
+Para mayor información respecto al proceso de migración, puede consultar la [Wiki](https://github.com/rcastrom/bdtec/wiki/Migrar) del proyecto
+
 ## Autores ✒️
 
 * **Ricardo Castro Méndez** - *Trabajo Inicial* - [rcastrom](https://github.com/rcastrom)
