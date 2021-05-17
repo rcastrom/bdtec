@@ -9,5 +9,3 @@ create table "ITE".tipos_evaluacion (
 	prioridad                       smallint                                  null   
 );
 
-ALTER TABLE "ITE".tipos_evaluacion
-    OWNER to amaterasu;

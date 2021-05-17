@@ -47,5 +47,4 @@ CREATE TABLE "ITE".preficha (
 	created_at                      timestamp without time zone   null  ,
 	updated_at                      timestamp without time zone   null   
 );
-ALTER TABLE "ITE".preficha
-    OWNER to amaterasu;
+

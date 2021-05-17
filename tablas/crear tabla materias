@@ -8,5 +8,4 @@ create table "ITE".materias (
 	caracterizacion                 text                                 null  ,
 	generales                       text                                 null   
 );
-ALTER TABLE "ITE".materias
-    OWNER to amaterasu;
+

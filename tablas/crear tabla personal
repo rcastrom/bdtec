@@ -35,6 +35,4 @@ CREATE TABLE "ITE".personal (
 	cedula_maestria                 char(15)                             null  ,
 	cedula_doctorado                char(15)                             null   
 );
-ALTER TABLE "ITE".personal
-    OWNER to amaterasu;
 

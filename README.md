@@ -17,7 +17,7 @@ Debido a que el desarrollo fué realizado en el Instituto Tecnológico de Ensena
 llega a cambiar el nombre del schema, deberá de actualizar los procedimientos almacenados (funciones en el caso de Postgre).
 
 Encontrará las siguientes carpetas:
-* Tablas.- Se enlistan por separados, todas las tablas que se emplean en el proyecto. Adicionalmente, se anexa el esquema gráfico de las tablas (así como sus relaciones) en el archivo comprimido .7z
+* Tablas.- Se enlistan por separados todas las tablas que se emplean en el proyecto. Adicionalmente, se anexa el esquema gráfico de las tablas (así como sus relaciones) en el archivo comprimido .7z
 * Procedimientos.- Los procedimientos almacenados que se han empleado y se requieren para el proyecto.
 * Trigger.- Las acciones al momento de realizar ingresos hacia las tablas.
 

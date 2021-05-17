@@ -50,6 +50,5 @@ CREATE TABLE "ITE".alumnos (
 	digito_registro_patronal        varchar(1)                           null  ,
 	nss                             varchar(20)                          null   
 );
-ALTER TABLE "ITE".alumnos
-    OWNER to amaterasu;
+
 

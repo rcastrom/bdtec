@@ -32,5 +32,4 @@ CREATE TABLE "ITE".socioecono (
 	enfermedad                      varchar(200)                  null   
 
 );
-ALTER TABLE "ITE".socioecono
-    OWNER to amaterasu;
+

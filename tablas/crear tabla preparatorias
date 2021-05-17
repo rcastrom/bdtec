@@ -4,5 +4,4 @@ create table "ITE".preparatorias (
 	entidad_federativa              int                              not null  ,
 	municipio                       char(50)                             null  
 );
-ALTER TABLE "ITE".preparatorias
-    OWNER to amaterasu;
+

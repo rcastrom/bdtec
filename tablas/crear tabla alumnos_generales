@@ -50,5 +50,4 @@ create table "ITE".alumnos_generales (
 	entidad_federativa_prepa        varchar(100)                 null  ,
 	facebook                        varchar(255)                         null   
 );
-ALTER TABLE "ITE".carreras
-    OWNER to amaterasu;
+

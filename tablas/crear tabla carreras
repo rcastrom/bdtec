@@ -15,5 +15,4 @@ create table "ITE".carreras (
 	abrev                           character(7)                         null  ,
 	nombre_ofertar                  character varying(200)               null   
 );
-ALTER TABLE "ITE".carreras
-    OWNER to amaterasu;
+

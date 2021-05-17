@@ -11,5 +11,4 @@ create table "ITE".seleccion_materias (
 	fecha_hora_seleccion            timestamp without time zone            null  ,
 	global                          character(1)                           null   
 );
-ALTER TABLE "ITE".seleccion_materias
-    OWNER to amaterasu;
+

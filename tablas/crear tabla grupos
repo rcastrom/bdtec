@@ -14,5 +14,4 @@ create table "ITE".grupos (
 	exclusivo                       character(2)                        null  ,
 	entrego                         boolean                             null   
 );
-ALTER TABLE "ITE".grupos
-    OWNER to amaterasu;
+

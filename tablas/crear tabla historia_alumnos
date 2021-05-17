@@ -14,5 +14,3 @@ create table "ITE".historia_alumno (
 	periodo_acredita_materia        "T_periodo"                            null   
 );
 
-ALTER TABLE "ITE".historia_alumno
-    OWNER to amaterasu;

@@ -17,5 +17,4 @@ create table "ITE".periodos_escolares (
 	inicio_cal_docentes             date                                   null  ,
 	fin_cal_docentes                date                                   null  
 );
-ALTER TABLE "ITE".periodos_escolares
-    OWNER to amaterasu;
+

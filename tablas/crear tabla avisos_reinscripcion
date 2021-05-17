@@ -28,5 +28,4 @@ create table "ITE".avisos_reinscripcion (
 	promedio_acumulado              "T_promedio"                         null  ,
 	proareas                        char(1)                              null   
 );
-ALTER TABLE "ITE".avisos_reinscripcion
-    OWNER to amaterasu;
+

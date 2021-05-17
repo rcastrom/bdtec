@@ -19,5 +19,3 @@ WITH (
     OIDS = FALSE
 );
 
-ALTER TABLE "ITE".evaluacion_alumnos
-    OWNER to amaterasu;

@@ -17,5 +17,4 @@ create table "ITE".acumulado_historico (
 	creditos_autorizados            "ITE"."T_creditos"                           null  ,
 	indice_reprobacion_acumulado    numeric(8,6)                                 null   
 );
-ALTER TABLE "ITE".acumulado_historico
-    OWNER to amaterasu;
+

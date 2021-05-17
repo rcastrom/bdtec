@@ -12,5 +12,4 @@ WITH (
     OIDS = FALSE
 );
 
-ALTER TABLE "ITE".especialidades
-    OWNER to amaterasu;
+

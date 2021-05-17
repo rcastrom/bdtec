@@ -12,5 +12,4 @@ create table "ITE".materias_carreras (
 	clave_oficial_materia           character(10)                            null  ,
 	renglon                         smallint                                 null   
 );
-ALTER TABLE "ITE".materias_carreras
-    OWNER to amaterasu;
+
