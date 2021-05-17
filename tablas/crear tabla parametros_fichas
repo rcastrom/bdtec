@@ -1,10 +1,10 @@
 create table "ITE".parametros_fichas (
-    id                 serial                       not null,
-	fichas             "T_periodo"                  not null  ,
-	activo             boolean                      not null  ,
-	inicio_prope       timestamp without time zone  null,
-	fin_prope          timestamp without time zone  null,
-	entrega            timestamp without time zone  null,
-	termina            timestamp without time zone  null,                          
+    id                 serial        not null,
+	fichas             "T_periodo"   not null  ,
+	activo             boolean       not null  ,
+	inicio_prope       date          null,
+	fin_prope          date          null,
+	entrega            date          null,
+	termina            date          null,                          
 );
 

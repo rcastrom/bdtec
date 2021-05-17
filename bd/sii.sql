@@ -2618,10 +2618,10 @@ CREATE TABLE "ITE".parametros_fichas (
     id integer NOT NULL,
     fichas "ITE"."T_periodo" NOT NULL,
     activo boolean NOT NULL,
-    inicio_prope timestamp without time zone,
-    fin_prope timestamp without time zone,
-    entrega timestamp without time zone,
-    termina timestamp without time zone
+    inicio_prope date,
+    fin_prope date,
+    entrega date,
+    termina date
 );
 
 
