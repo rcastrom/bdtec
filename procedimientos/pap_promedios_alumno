@@ -154,5 +154,4 @@ BEGIN
 END;
 
 $BODY$;
-ALTER FUNCTION "ITE".pap_promedios_alumno("ITE"."T_no_de_control",character varying)
-    OWNER TO amaterasu;
+

@@ -1,0 +1,34 @@
+CREATE OR REPLACE FUNCTION "ITE".pac_idiomas_consulta(IN peri "ITE"."T_periodo", IN leng_ext integer)
+    RETURNS TABLE(cve character varying, ncurso character varying, cantidad smallint)
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+DECLARE
+inscritos smallint:=0;
+rec record;
+
+BEGIN
+	
+    -- Se crea la tabla del horario
+	CREATE TEMPORARY TABLE inscritos_idiomas(
+    cve character varying, 
+    ncurso character varying, 
+    cantidad smallint
+    );
+
+   --Se leen los datos
+    FOR rec IN SELECT IG.id, IG.nombre_completo FROM idiomas_grupos IG WHERE IG.periodo=peri AND IG.idioma=leng_ext ORDER BY IG.nombre_completo
+    LOOP
+        --Creditos
+        SELECT COUNT(*) FROM idiomas_inscripcion II WHERE II.periodo=peri AND II.idioma=leng_ext AND II.clave=rec.id INTO inscritos;
+        --Almacaner
+        INSERT INTO inscritos_idiomas(cve,ncurso,cantidad) VALUES (rec.id, rec.nombre_completo, inscritos);
+    END LOOP;
+    RETURN QUERY SELECT II.cve,II.ncurso,II.cantidad FROM inscritos_idiomas II;
+	DROP TABLE inscritos_idiomas;		
+	
+	
+END
+
+$BODY$;
+

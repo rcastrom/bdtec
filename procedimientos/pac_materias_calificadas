@@ -20,5 +20,4 @@ END
 
 $BODY$;
 
-ALTER FUNCTION "ITE".pac_materias_calificadas(character varying)
-    OWNER TO amaterasu;
+

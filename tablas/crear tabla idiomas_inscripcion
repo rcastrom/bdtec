@@ -1,0 +1,11 @@
+create table "ITE".idiomas_inscripcion (
+	periodo               "ITE"."T_periodo"           not null  ,
+	control               "ITE"."T_no_de_control"     not null  ,
+	carrera               "ITE"."T_carrera"           not null  ,
+	reticula              "ITE"."T_reticula"          not null  ,
+	idioma                int                         not null  ,
+	clave                 int                         not null  ,
+	calif                 "ITE"."T_calificacion"      null   ,
+	fecha_hora_selecc     timestamp without time zone not null  ,
+	quien                 varchar(200)                not null   
+);

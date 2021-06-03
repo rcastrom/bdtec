@@ -1,0 +1,9 @@
+create table "ITE".idiomas_grupos (
+	id                  serial                not null  ,
+	periodo             "ITE"."T_periodo"     not null  ,
+	idioma              smallint              not null  ,
+	clave               varchar(6)            not null  ,
+	nombre_completo     varchar(255)          not null  ,
+	nombre_abrev        varchar(200)          not null  ,
+	ya_eval             boolean               null   
+);

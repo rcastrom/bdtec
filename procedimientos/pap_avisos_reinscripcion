@@ -163,5 +163,4 @@ BEGIN
 END;
 
 $BODY$;
-ALTER FUNCTION "ITE".pap_avisos_reinscripcion(character varying,character varying)
-    OWNER TO amaterasu;
+

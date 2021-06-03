@@ -20,5 +20,4 @@ END
 
 $BODY$;
 
-ALTER FUNCTION "ITE".pac_calificacion_semestre(character varying,character varying)
-    OWNER TO amaterasu;
+

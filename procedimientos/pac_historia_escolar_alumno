@@ -25,5 +25,4 @@ BEGIN
 
 END
 $BODY$;
-ALTER FUNCTION "ITE".pac_historia_escolar_alumno(character varying)
-    OWNER TO amaterasu;
+

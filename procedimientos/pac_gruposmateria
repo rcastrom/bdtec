@@ -37,5 +37,3 @@ END
 
 $BODY$;
 
-ALTER FUNCTION "ITE".pac_gruposmateria(character varying, character varying, character varying)
-    OWNER TO amaterasu;

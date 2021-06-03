@@ -1,0 +1,9 @@
+create table "ITE".idiomas_docentes (
+    id                 serial         not null,
+	rfc                varchar(13)    null  ,
+	appat              varchar(200)   null  ,
+	apmat              varchar(200)   not null  ,
+	nombre             varchar(200)   not null  ,
+	status             char(1)        not null                        
+);
+

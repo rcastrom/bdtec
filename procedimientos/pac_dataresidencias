@@ -30,5 +30,3 @@ END
 
 $BODY$;
 
-ALTER FUNCTION "ITE".pac_dataresidencias(character varying, character varying)
-    OWNER TO amaterasu;

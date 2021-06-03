@@ -78,5 +78,4 @@ END
 
 $BODY$;
 
-ALTER FUNCTION "ITE".pac_verifica_repite(character varying, character varying)
-    OWNER TO amaterasu;
+

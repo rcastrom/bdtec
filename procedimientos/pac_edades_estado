@@ -10,5 +10,4 @@ A.semestre FROM "ITE".alumnos A, "ITE".seleccion_materias SM WHERE SM.periodo=pe
 and SM.no_de_control=A.no_de_control;
 END
 $BODY$;
-ALTER FUNCTION "ITE".pac_edades_estado(character varying,character varying,character(3),smallint,character(2))
-    OWNER TO amaterasu;
+

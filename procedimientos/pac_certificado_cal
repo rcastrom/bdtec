@@ -22,5 +22,4 @@ BEGIN
 
 END
 $BODY$;
-ALTER FUNCTION "ITE".pac_certificado_cal(character varying)
-    OWNER TO amaterasu;
+

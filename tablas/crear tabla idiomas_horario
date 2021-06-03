@@ -1,0 +1,20 @@
+create table "ITE".idiomas_horario (
+	periodo                         "ITE"."T_periodo"                 not null  ,
+	idioma                          smallint                          not null  ,
+	lun_ini                         varchar(5)                           null  ,
+	lun_fin                         varchar(5)                           null  ,
+	mar_ini                         varchar(5)                           null  ,
+	mar_fin                         varchar(5)                           null  ,
+	mie_ini                         varchar(5)                           null  ,
+	mie_fin                         varchar(5)                           null  ,
+	jue_ini                         varchar(5)                           null  ,
+	jue_fin                         varchar(5)                           null  ,
+	vie_ini                         varchar(5)                           null  ,
+	vie_fin                         varchar(5)                           null  ,
+	sab_ini                         varchar(5)                           null  ,
+	sab_fin                         varchar(5)                           null  ,
+	clave                           int                              not null  ,
+	asesor                          int                                  null  ,
+	lugar                           varchar(200)                     not null  ,
+	capacidad                       int                                  null   
+);

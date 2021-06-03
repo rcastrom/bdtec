@@ -36,5 +36,4 @@ END
 
 $BODY$;
 
-ALTER FUNCTION "ITE".pac_constancias_kardex(character varying)
-    OWNER TO amaterasu;
+

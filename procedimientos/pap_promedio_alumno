@@ -18,5 +18,4 @@ RETURN conteo;
 END;
 
 $BODY$;
-ALTER FUNCTION "ITE".pap_promedio_alumno(character varying)
-    OWNER TO amaterasu;
+

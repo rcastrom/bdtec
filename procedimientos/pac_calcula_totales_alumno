@@ -22,5 +22,3 @@ END
 
 $BODY$;
 
-ALTER FUNCTION "ITE".pac_calcula_totales_alumno(character varying)
-    OWNER TO amaterasu;

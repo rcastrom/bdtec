@@ -54,5 +54,4 @@ END
 
 $BODY$;
 
-ALTER FUNCTION "ITE".pac_horario(character varying, character varying)
-    OWNER TO amaterasu;
+

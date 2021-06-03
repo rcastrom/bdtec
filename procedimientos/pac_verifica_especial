@@ -63,5 +63,4 @@ END
 
 $BODY$;
 
-ALTER FUNCTION "ITE".pac_verifica_especial(character varying, character varying)
-    OWNER TO amaterasu;
+

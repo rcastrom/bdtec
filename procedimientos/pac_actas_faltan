@@ -21,7 +21,4 @@ END
 
 $BODY$;
 
-ALTER FUNCTION "ITE".pac_actas_faltan(character varying)
-    OWNER TO amaterasu;
-
 

@@ -127,5 +127,3 @@ END
 
 $BODY$;
 
-ALTER FUNCTION "ITE".pac_reticulaalumno(character varying)
-    OWNER TO amaterasu;

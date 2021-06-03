@@ -25,5 +25,4 @@ BEGIN
 END;
 
 $BODY$;
-ALTER FUNCTION "ITE".pap_curso_especial(character varying)
-    OWNER TO amaterasu;
+
