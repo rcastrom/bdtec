@@ -1,0 +1,14 @@
+CREATE FUNCTION "ITE".pap_estudios_personal(IN personal integer) 
+
+RETURNS TABLE(id integer, descripcion character varying, nivel character, carrera text, nombre text, cedula character varying, fecha_inicio date, fecha_final date)
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+BEGIN
+
+RETURN QUERY SELECT PE.id, PN.descripcion, PC.nivel, PC.carrera, PI.nombre, PE.cedula, PE.fecha_inicio, PE.fecha_final 
+FROM "ITE".personal_carreras PC, "ITE".personal_estudios PE, "ITE".personal_instit_estudios PI, "ITE".personal_nivel_estudios PN
+WHERE PE.id_docente=personal AND PE.id_carrera=PC.id AND PE.id_escuela=PI.id AND PC.nivel=PN.caracter;
+END
+$BODY$;
+

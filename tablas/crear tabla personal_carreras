@@ -1,0 +1,10 @@
+CREATE TABLE "ITE".personal_carreras (
+    id                              serial                  not null,
+	carrera                         text                    not null,  
+    nombre_corto                    varchar(200)            not null,
+    siglas                          varchar(5)              not null,
+    nivel                           int                     not null,
+    created_at                      timestamp without time zone          null  ,
+    updated_at                      timestamp without time zone          null  , 
+    CONSTRAINT personal_carreras_pkey PRIMARY KEY (id)
+);

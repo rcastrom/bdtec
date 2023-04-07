@@ -1,0 +1,36 @@
+CREATE OR REPLACE FUNCTION "ITE".calificaciones(IN periodo_checar character varying,IN control character varying,OUT mater "ITE"."T_materia",OUT nombre character varying,OUT cal smallint,OUT tipo character,OUT descripcion character varying,OUT credit smallint)
+    RETURNS SETOF record
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL UNSAFE
+    COST 100    ROWS 1000 
+    
+AS $BODY$
+DECLARE 
+reg RECORD;
+
+BEGIN
+	FOR reg IN SELECT HA.materia,nombre_completo_materia, calificacion,HA.tipo_evaluacion, 
+descripcion_evaluacion,creditos_materia
+FROM 
+historia_alumno HA, alumnos A, materias_carreras MC, materias M,tipos_evaluacion TE
+WHERE 
+HA.no_de_control=control AND HA.no_de_control=A.no_de_control
+AND A.carrera=MC.carrera
+AND A.reticula=MC.reticula
+AND MC.materia=M.materia
+AND HA.materia=MC.materia
+AND HA.tipo_evaluacion=TE.tipo_evaluacion
+AND A.plan_de_estudios=TE.plan_de_estudios
+AND HA.periodo=periodo_checar LOOP
+mater:=reg.materia;
+nombre:=reg.nombre_completo_materia;
+cal:=reg.calificacion;
+tipo:=reg.tipo_evaluacion;
+descripcion:=reg.descripcion_evaluacion;
+credit:=reg.creditos_materia;
+RETURN NEXT;
+END LOOP;
+RETURN;
+END
+$BODY$;

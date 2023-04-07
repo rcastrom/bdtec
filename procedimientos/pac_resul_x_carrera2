@@ -1,0 +1,32 @@
+CREATE OR REPLACE FUNCTION "ITE".pac_resul_x_carrera2(IN peri character varying,IN carr "ITE"."T_carrera",IN ret integer)
+    RETURNS TABLE(inscritos integer, evaluaron integer)
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL UNSAFE
+    COST 100    ROWS 1000 
+    
+AS $BODY$
+DECLARE
+inscrit smallint:=0;
+eval smallint:=0;
+BEGIN
+
+    CREATE TEMPORARY TABLE eval1(inscritos integer, evaluaron integer);
+
+    SELECT COUNT(DISTINCT(SM.no_de_control))
+    FROM "ITE".seleccion_materias SM, "ITE".alumnos A
+    WHERE SM.periodo=peri AND SM.no_de_control=A.no_de_control
+    AND A.carrera=carr AND A.reticula=ret INTO inscrit;
+
+    SELECT COUNT(DISTINCT(EA.no_de_control))
+    FROM "ITE".evaluacion_alumnos EA, "ITE".alumnos A
+    WHERE EA.periodo=peri AND EA.no_de_control=A.no_de_control
+    AND A.carrera=carr AND A.reticula=ret INTO eval;
+
+    INSERT INTO eval1(inscritos,evaluaron) VALUES(inscrit,eval);
+    
+    RETURN QUERY SELECT eval1.inscritos,eval1.evaluaron FROM eval1;
+    
+    DROP TABLE eval1;
+END
+$BODY$;

@@ -1,0 +1,26 @@
+CREATE FUNCTION "ITE".pac_act_ins_gpoxmat(IN peri character varying)
+    RETURNS smallint
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+DECLARE
+inscritos smallint;
+rec record;
+
+BEGIN
+   --Se leen los datos
+    FOR rec IN SELECT DISTINCT(G.materia), G.grupo FROM "ITE".grupos G WHERE G.periodo=peri
+    LOOP
+        --Obtener materias y grupos
+        SELECT COUNT(DISTINCT(SM.no_de_control)) FROM "ITE".seleccion_materias SM WHERE SM.periodo=peri AND SM.materia=rec.materia
+        AND SM.grupo=rec.grupo INTO inscritos;
+        --Actualizar
+        UPDATE "ITE".grupos SET alumnos_inscritos=inscritos WHERE periodo=peri AND materia=rec.materia
+        AND grupo=rec.grupo;
+    END LOOP;
+    RETURN 1 AS terminado;	
+	
+END
+
+$BODY$;
+

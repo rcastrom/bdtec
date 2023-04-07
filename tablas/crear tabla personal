@@ -1,4 +1,5 @@
 CREATE TABLE "ITE".personal (
+    id                              serial                  not null,
 	rfc                             char(13)                         not null  ,
 	clave_area                      char(6)                              null  ,
 	curp_empleado                   char(18)                             null  ,
@@ -16,23 +17,14 @@ CREATE TABLE "ITE".personal (
 	telefono_empleado               varchar(30)                          null  ,
 	sexo_empleado                   char(1)                              null  ,
 	estado_civil                    char(1)                              null  ,
-	nivel_estudios                  char(1)                              null  ,
-	grado_maximo_estudios           char(1)                              null  ,
-	estudios                        varchar(250)                         null  ,
-	cedula_profesional              char(15)                             null  ,
 	status_empleado                 char(2)                              null  ,
 	correo_electronico              varchar(150)                         null  ,
 	correo_institucion              varchar(150)                         null  ,
-	institucion_expide_titulo       varchar(250)                         null  ,
-	institucion_expide_cedula       varchar(250)                         null  ,
-	inactivo_rc                     char(1)                              null  ,
-	documento_obtenido              varchar(100)                         null  ,
-	documento_obtenido_fecha        date                                 null  ,
-	documento_obtenido_institucion  varchar(100)                         null  ,
 	apellido_paterno                varchar(100)                         null  ,
 	apellido_materno                varchar(100)                         null  ,
-	tit_abreviado                   varchar(10)                          null  ,
-	cedula_maestria                 char(15)                             null  ,
-	cedula_doctorado                char(15)                             null   
+    siglas                          char(5)                              null  ,
+    created_at                      timestamp without time zone          null  ,
+    updated_at                      timestamp without time zone          null  , 
+    CONSTRAINT personal_pkey PRIMARY KEY (id)
 );
 

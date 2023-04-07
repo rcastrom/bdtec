@@ -1,0 +1,37 @@
+CREATE OR REPLACE FUNCTION "ITE".horario(IN control character varying,IN periodo_checar character varying,OUT mater character varying,OUT gpo character varying,OUT docente character varying,OUT nombre character varying,OUT credit smallint)
+    RETURNS SETOF record
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL UNSAFE
+    COST 100    ROWS 1000 
+    
+AS $BODY$
+DECLARE 
+reg RECORD;
+BEGIN
+	FOR reg IN SELECT SM.materia,SM.grupo,apellidos_empleado,nombre_empleado,
+	nombre_completo_materia,creditos_materia
+FROM 
+seleccion_materias SM, alumnos A, materias_carreras MC, materias M, grupos G, personal P
+WHERE 
+SM.no_de_control=control AND SM.no_de_control=A.no_de_control
+AND SM.periodo=periodo_checar
+AND A.carrera=MC.carrera
+AND A.reticula=MC.reticula
+AND MC.materia=M.materia
+AND SM.materia=MC.materia
+AND SM.periodo=G.periodo
+AND SM.materia=G.materia
+AND SM.grupo=G.grupo
+AND G.rfc=P.rfc
+ LOOP
+mater:=reg.materia;
+gpo:=reg.grupo;
+docente:=CONCAT(reg.apellidos_empleado,' ',reg.nombre_empleado);
+nombre:=reg.nombre_completo_materia;
+credit:=reg.creditos_materia;
+RETURN NEXT;
+END LOOP;
+RETURN;
+END
+$BODY$;

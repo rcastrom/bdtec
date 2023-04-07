@@ -1,0 +1,5 @@
+create table "ITE".sol_ds_de_quien_dependes (
+	de_quien                        int                              not null  ,
+	descripcion                     char(30)                         not null   
+);
+

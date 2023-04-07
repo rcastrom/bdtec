@@ -1,0 +1,52 @@
+CREATE OR REPLACE FUNCTION "ITE".pac_resul_x_carrera3(IN peri character varying,IN depto character,IN tamanio integer)
+    RETURNS TABLE(clave_area character, siglas character, mat_existen integer, mat_eval integer, docentes integer, doc_eval integer)
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL UNSAFE
+    COST 100    ROWS 1000 
+    
+AS $BODY$
+DECLARE
+rec record;
+evaluadas smallint:=0;
+sigla character(5);
+personal_area smallint:=0;
+personal_eval smallint:=0;
+BEGIN
+
+    CREATE TEMPORARY TABLE evalD0(clave_area character(6), siglas character(5),mat_existen integer, mat_eval integer, docentes integer, doc_eval integer);
+    CREATE TEMP TABLE IF NOT EXISTS evlDO AS
+    SELECT DISTINCT(M.clave_area), G.materia
+    FROM "ITE".grupos G, "ITE".materias M
+    WHERE G.periodo=peri AND G.materia=M.materia
+    AND M.clave_area=depto
+    AND M.nombre_completo_materia NOT LIKE '%RESIDENCIA%';
+
+    CREATE TEMP TABLE IF NOT EXISTS evlEO AS
+    SELECT DISTINCT(M.clave_area), EA.materia
+    FROM "ITE".evaluacion_alumnos EA, "ITE".materias M
+    WHERE EA.periodo=peri AND EA.materia=M.materia
+    AND M.clave_area=depto AND char_length(EA.respuestas)=tamanio;
+
+    FOR rec IN SELECT DISTINCT(EA.clave_area), count(EA.clave_area) AS total FROM evlDO EA GROUP BY (EA.clave_area) LOOP
+        SELECT organigrama.siglas FROM "ITE".organigrama WHERE organigrama.clave_area=rec.clave_area INTO sigla;
+
+        SELECT count(*) FROM evlEO WHERE evlEO.clave_area=rec.clave_area INTO evaluadas;
+
+        SELECT COUNT(DISTINCT(G.rfc)) FROM "ITE".grupos G, "ITE".materias M, "ITE".personal P
+        WHERE G.periodo=peri AND G.materia=M.materia 
+        AND G.rfc=P.rfc AND P.clave_area=rec.clave_area INTO personal_area;
+
+        SELECT COUNT(DISTINCT(E.rfc)) FROM "ITE".evaluacion_alumnos E, "ITE".materias M, "ITE".personal P
+        WHERE E.periodo=peri AND E.materia=M.materia AND char_length(respuestas)=tamanio
+        AND E.rfc=P.rfc AND P.clave_area=rec.clave_area INTO personal_eval;
+
+        INSERT INTO evalD0(clave_area,siglas,mat_existen,mat_eval,docentes,doc_eval) VALUES(rec.clave_area,sigla,rec.total,evaluadas,personal_area,personal_eval);
+    END LOOP;
+    RETURN QUERY SELECT evalD0.clave_area,evalD0.siglas,evalD0.mat_existen,evalD0.mat_eval,evalD0.docentes,evalD0.doc_eval FROM evalD0;
+    
+    DROP TABLE evalD0;
+    DROP TABLE evlDO;
+    DROP TABLE evlEO;
+END
+$BODY$;

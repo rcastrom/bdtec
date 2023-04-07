@@ -1,0 +1,12 @@
+CREATE TABLE "ITE".personal_estudios (
+    id                              serial                  not null,
+	id_docente                      int                     not null,  
+    fecha_inicio                    date                    null,
+    fecha_final                     date                    null,
+    id_carrera                      int                     null,
+    id_escuela                      int                     null,
+    cedula                          varchar(50)             null,
+    created_at                      timestamp without time zone          null  ,
+    updated_at                      timestamp without time zone          null  , 
+    CONSTRAINT personal_estudios_pkey PRIMARY KEY (id)
+);

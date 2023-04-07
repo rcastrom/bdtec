@@ -1,0 +1,22 @@
+CREATE OR REPLACE FUNCTION "ITE".evl_omitir_mat_alu(IN peri character varying,IN control character varying)
+    RETURNS TABLE(materia "ITE"."T_materia", grupo character)
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL UNSAFE
+    COST 100    ROWS 1000 
+    
+AS $BODY$
+BEGIN
+	RETURN QUERY SELECT DISTINCT(SM.materia),SM.grupo 
+	from "ITE".seleccion_materias SM, "ITE".alumnos A,
+	"ITE".materias_carreras MC,"ITE".materias M 
+	WHERE SM.no_de_control=control and SM.periodo=peri 
+	and SM.no_de_control=A.no_de_control 
+	AND A.carrera=MC.carrera AND A.reticula=MC.reticula 
+	AND SM.materia=MC.materia AND M.materia=SM.materia 
+	AND M.nombre_abreviado_materia NOT LIKE 'RESIDENCIA%'
+	AND M.materia NOT IN 
+	(SELECT EA.materia FROM "ITE".evaluacion_alumnos EA 
+	 WHERE EA.no_de_control=control AND EA.periodo=peri);
+END
+$BODY$;

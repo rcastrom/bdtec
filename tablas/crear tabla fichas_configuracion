@@ -1,0 +1,17 @@
+create table "ITE".fichas_configuracion (
+	periodo                         "ITE"."T_periodo"            not null  ,
+	fecha_inicio_solicitudes        timestamp without time zone  not null  ,
+	fecha_termino_solicitudes       timestamp without time zone  not null  ,
+	fecha_examen_ceneval            timestamp without time zone  not null  ,
+	direccion_url_ceneval           varchar(200)                 not null  ,
+	hora_examen_ceneval             varchar(5)                   not null  ,
+	hora_inicio_dia_atencion        varchar(5)                   not null  ,
+	hora_fin_dia_atencion           varchar(5)                   not null  ,
+	folios_por_dia_atencion         int                          not null  ,
+	costo_examen                    int                          not null  ,
+	banco                           varchar(20)                  not null  ,
+	cuenta                          varchar(20)                      null  ,
+	created_at                      timestamp without time zone      null  ,
+	updated_at                      timestamp without time zone      null   
+);
+

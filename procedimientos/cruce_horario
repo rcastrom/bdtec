@@ -1,0 +1,25 @@
+CREATE OR REPLACE FUNCTION "ITE".cruce_horario(IN peri character varying,IN mat character varying,IN gpo character varying,IN doc character varying,IN dia integer,OUT cruce integer)
+    RETURNS integer
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL UNSAFE
+    COST 100
+    
+AS $BODY$
+DECLARE
+hora_inicio time without time zone;
+hora_fin time without time zone;
+BEGIN
+select hora_inicial from horarios where periodo = peri 
+and materia = mat and grupo=gpo and dia_semana = dia into hora_inicio;
+select hora_final from horarios where periodo = peri 
+and materia = mat and grupo=gpo and dia_semana = dia into hora_fin;
+select count(*) from horarios where periodo = peri    
+and rfc = doc and (rfc is not null or rfc<>'') and dia_semana = dia
+and (hora_inicial=hora_inicio  
+or ((hora_inicial < hora_inicio) and (hora_inicio < hora_final))  
+or ((hora_inicial < hora_fin) and (hora_fin < hora_final) ) 
+or ((hora_inicio < hora_inicial) and (hora_inicial < hora_fin)) 
+or ((hora_inicial > hora_inicio) and (hora_final < hora_fin))) into cruce;
+END
+$BODY$;

@@ -1,0 +1,10 @@
+CREATE TABLE "ITE".evaluacion_aspectos
+(
+    aspecto character varying(1) NOT NULL,
+    encuesta character varying(1) NOT NULL,
+    descripcion character varying(255),
+    consecutivo smallint NOT NULL,
+    PRIMARY KEY (aspecto, encuesta,consecutivo)
+);
+
+

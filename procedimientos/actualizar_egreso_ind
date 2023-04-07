@@ -1,0 +1,25 @@
+CREATE FUNCTION "ITE".actualizar_egreso_ind(IN control character varying)
+    RETURNS void
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+DECLARE
+ultimo_periodo character varying;
+promedio numeric;
+
+BEGIN
+
+	SELECT MAX(h.periodo) INTO ultimo_periodo FROM "ITE".historia_alumno h 
+	WHERE h.no_de_control = control;
+	
+	SELECT ROUND(AVG(h.calificacion),2) INTO promedio FROM "ITE".historia_alumno h 
+	WHERE h.no_de_control = control AND h.calificacion>=70 
+    AND h.tipo_evaluacion NOT IN('AC','93','92','91');
+	
+	UPDATE "ITE".alumnos a
+	SET ultimo_periodo_inscrito=ultimo_periodo,
+    promedio_aritmetico_acumulado=promedio 
+	WHERE a.no_de_control = control;
+
+END
+$BODY$;

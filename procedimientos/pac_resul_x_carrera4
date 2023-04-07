@@ -1,0 +1,30 @@
+CREATE OR REPLACE FUNCTION "ITE".pac_resul_x_carrera4(IN peri character varying,IN depto character,IN tamanio integer)
+    RETURNS TABLE(inscritos integer, evaluaron integer)
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL UNSAFE
+    COST 100    ROWS 1000 
+    
+AS $BODY$
+DECLARE
+
+alumnos smallint:=0;
+eval smallint:=0;
+BEGIN
+
+    CREATE TEMPORARY TABLE evalF0(inscritos integer, evaluaron integer);
+
+    SELECT COUNT(DISTINCT(SM.no_de_control)) FROM "ITE".seleccion_materias SM, "ITE".materias M
+    WHERE SM.periodo=peri AND SM.materia=M.materia AND M.clave_area=depto AND
+    M.nombre_completo_materia NOT LIKE '%RESIDENCIA%' INTO alumnos;
+
+    SELECT COUNT(DISTINCT(EA.no_de_control)) FROM "ITE".evaluacion_alumnos EA, "ITE".materias M
+    WHERE EA.periodo=peri AND EA.materia=M.materia AND M.clave_area=depto AND EA.encuesta='A' AND char_length(respuestas)=tamanio INTO eval;
+
+    INSERT INTO evalF0(inscritos, evaluaron) VALUES (alumnos,eval);
+    
+    RETURN QUERY SELECT evalF0.inscritos,evalF0.evaluaron FROM evalF0;
+
+    DROP TABLE evalF0;
+END
+$BODY$;

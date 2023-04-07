@@ -1,0 +1,23 @@
+CREATE OR REPLACE FUNCTION "ITE".pap_estatus_alumno(IN peri character varying)
+    RETURNS void
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL UNSAFE
+    COST 100
+    
+AS $BODY$
+-- Inicializo variables
+
+DECLARE
+    rec record;
+	cuando timestamp without time zone;
+BEGIN	
+--Primero, darlos de baja
+UPDATE "ITE".alumnos SET estatus_alumno='BT3' WHERE estatus_alumno='ACT';
+--Alumnos del periodo en cuestion
+    FOR rec IN SELECT DISTINCT SM.no_de_control FROM "ITE".seleccion_materias SM WHERE SM.periodo=peri
+        LOOP
+            UPDATE "ITE".alumnos SET estatus_alumno = 'ACT' where no_de_control = rec.no_de_control;
+        END LOOP;
+END;
+$BODY$;

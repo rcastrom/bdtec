@@ -1,0 +1,22 @@
+DECLARE
+existe1 int :=0;
+existe2 int :=0;
+BEGIN
+SELECT COUNT(*) FROM "ITE".seleccion_materias WHERE periodo=NEW.periodo
+AND no_de_control=NEW.no_de_control AND materia=NEW.materia INTO existe1;
+IF (existe1>0) THEN
+    RAISE EXCEPTION 'El estudiante ya tiene dada de alta la materia ';
+    ROLLBACK;
+    RETURN NULL;
+ELSE
+    SELECT COUNT(*) FROM "ITE".historia_alumno WHERE periodo=NEW.periodo
+AND no_de_control=NEW.no_de_control AND materia=NEW.materia AND calificacion>=70
+INTO existe2;
+    IF (existe2>0) THEN
+    RAISE EXCEPTION 'El estudiante ya tiene acreditada la materia ';
+    ROLLBACK;
+    RETURN NULL;
+    END IF;
+END IF;
+RETURN NEW;
+END;

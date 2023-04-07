@@ -1,0 +1,15 @@
+CREATE FUNCTION "ITE".pac_docentes_faltan_ev(IN peri character varying)
+    RETURNS TABLE(rfc character(13),apellidos_empleado character(200),nombre_empleado character(200))
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+
+BEGIN
+        RETURN QUERY SELECT DISTINCT(G.rfc), P.apellidos_empleado, P.nombre_empleado 
+        FROM "ITE".grupos G, "ITE".personal P
+        WHERE G.periodo=peri AND G.rfc=P.rfc AND G.rfc NOT IN (
+                                        SELECT DISTINCT(EA.rfc) FROM "ITE".evaluacion_alumnos EA WHERE EA.periodo=peri) 
+        ORDER BY apellidos_empleado, nombre_empleado;
+END
+
+$BODY$;

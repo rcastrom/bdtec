@@ -1,0 +1,41 @@
+CREATE OR REPLACE FUNCTION "ITE".pac_evl_docente(IN peri character varying,IN doc character varying,IN tamanio smallint)
+    RETURNS TABLE(nombre_completo_materia character varying, materia "ITE"."T_materia", grupo character, alumnos_inscritos smallint, paralelo_de character, evaluaron smallint)
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL UNSAFE
+    COST 100    ROWS 1000 
+    
+AS $BODY$
+DECLARE
+rec record;
+evaluaron integer:=0;
+BEGIN
+-- Se crea la tabla de las materias
+	CREATE TEMPORARY TABLE evlM0(
+    materia character varying, 
+    grupo character(3), 
+    paralelo_de character varying,
+    evaluados smallint
+    );
+
+	FOR rec IN SELECT DISTINCT(G.materia),G.grupo,G.paralelo_de
+	FROM "ITE".grupos G,"ITE".evaluacion_alumnos EA, "ITE".materias M
+	WHERE G.periodo=peri AND G.rfc=doc AND G.rfc=EA.rfc 
+    AND EA.encuesta='A' AND length(EA.respuestas) = tamanio
+    AND EA.materia=M.materia AND EA.materia=G.materia 
+    AND M.nombre_abreviado_materia NOT LIKE 'RESIDENCIA%'
+    LOOP
+        SELECT COUNT(*) FROM "ITE".evaluacion_alumnos EA
+        WHERE EA.periodo=peri and EA.materia=rec.materia and EA.grupo=rec.grupo and length(EA.respuestas)=tamanio INTO evaluaron;
+--Almacenar
+        INSERT INTO evlM0(materia,grupo,paralelo_de,evaluados) VALUES (rec.materia,rec.grupo,rec.paralelo_de,evaluaron);
+    END LOOP;
+
+        RETURN QUERY SELECT M.nombre_completo_materia,G.materia,G.grupo,G.alumnos_inscritos,G.paralelo_de,E.evaluados 
+		FROM "ITE".grupos G, "ITE".materias M, evlM0 E  
+		WHERE G.periodo=peri AND G.materia=E.materia AND G.grupo=E.grupo AND G.materia=M.materia ORDER BY paralelo_de DESC;
+
+	    DROP TABLE evlM0;
+END
+
+$BODY$;

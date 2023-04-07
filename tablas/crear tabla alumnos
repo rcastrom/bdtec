@@ -35,20 +35,12 @@ CREATE TABLE "ITE".alumnos (
 	indice_reprobacion_acumulado    numeric(8,6)                         null  ,
 	becado_por                      varchar(100)                         null  ,
 	nip                             int                                  null  ,
-	tipo_alumno                     char(2)                              null  ,
-	nacionalidad                    char(3)                              null  ,
-	usuario                         char(30)                             null  ,
-	fecha_actualizacion             date                                 null  ,
-	folio                           int                                  null  ,
 	fecha_titulacion                "ITE"."T_fecha"                      null  ,
 	opcion_titulacion               varchar(4)                           null  ,
-	estatus_alumno_fecha            "ITE"."T_fecha"                      null  ,
-	estatus_alumno_usuario          varchar(100)                         null  ,
-	estatus_alumno_anterior         char(3)                              null  ,
 	periodo_titulacion              "ITE"."T_periodo"                    null  ,
-	registro_patronal               varchar(10)                          null  ,
-	digito_registro_patronal        varchar(1)                           null  ,
-	nss                             varchar(20)                          null   
+	nss                             varchar(20)                          null  ,
+    created_at                      timestamp without time zone,
+    updated_at                      timestamp without time zone
 );
 
 

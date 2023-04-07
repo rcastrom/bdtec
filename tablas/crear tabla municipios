@@ -1,0 +1,10 @@
+CREATE TABLE "ITE".municipios (
+    id                              serial                  not null,
+	id_estado                       int                     not null,
+    id_municipio                    int                     not null,
+    municipio                       varchar(255)            not null,
+    created_at                      timestamp without time zone          null  ,
+    updated_at                      timestamp without time zone          null  , 
+    CONSTRAINT municipios_pkey PRIMARY KEY (id)
+);
+

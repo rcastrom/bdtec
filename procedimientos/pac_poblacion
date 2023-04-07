@@ -1,0 +1,37 @@
+CREATE OR REPLACE FUNCTION "ITE".pac_poblacion(IN peri character varying)
+    RETURNS TABLE(carrera character varying, reticula smallint, ncarrera character varying, cantidad integer)
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL UNSAFE
+    COST 100    ROWS 1000 
+    
+AS $BODY$
+DECLARE
+cantidad int;
+rec record;
+BEGIN
+    
+    CREATE TEMPORARY TABLE poblacion(
+        carrera character varying, 
+        reticula smallint, 
+        ncarrera character varying, 
+        cantidad int
+    );
+ 
+    FOR rec IN
+        SELECT carreras.carrera, carreras.reticula, carreras.nombre_carrera FROM carreras
+    LOOP
+        SELECT COUNT(DISTINCT(SM.no_de_control)) FROM seleccion_materias SM, alumnos A
+        WHERE SM.no_de_control=A.no_de_control AND SM.periodo=peri AND A.carrera=rec.carrera
+        AND A.reticula=rec.reticula INTO cantidad;
+        IF cantidad>0 THEN
+            INSERT INTO poblacion(carrera,reticula,ncarrera,cantidad) 
+VALUES(rec.carrera, rec.reticula, rec.nombre_carrera, cantidad);
+
+        END IF;
+    END LOOP;
+ RETURN QUERY select poblacion.carrera, poblacion.reticula, poblacion.ncarrera, poblacion.cantidad FROM poblacion ORDER BY ncarrera ASC;
+ DROP TABLE poblacion; 
+END
+
+$BODY$;

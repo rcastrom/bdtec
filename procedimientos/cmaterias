@@ -1,0 +1,28 @@
+CREATE OR REPLACE FUNCTION "ITE".cmaterias(IN control character varying,OUT cve_mat character varying,OUT nmat character varying)
+    RETURNS SETOF record
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL UNSAFE
+    COST 100    ROWS 1000 
+    
+AS $BODY$
+DECLARE 
+reg RECORD;
+BEGIN
+	FOR reg IN SELECT M.materia,nombre_completo_materia
+FROM 
+	alumnos A, materias_carreras MC, materias M
+WHERE 
+A.no_de_control=control
+AND A.carrera=MC.carrera
+AND A.reticula=MC.reticula
+AND MC.materia=M.materia
+ORDER BY nombre_completo_materia
+LOOP
+cve_mat:=reg.materia;
+nmat:=reg.nombre_completo_materia;
+RETURN NEXT;
+END LOOP;
+RETURN;
+END
+$BODY$;

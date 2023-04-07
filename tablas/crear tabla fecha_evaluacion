@@ -1,0 +1,11 @@
+CREATE TABLE "ITE".fecha_evaluacion
+(
+    periodo "ITE"."T_periodo" NOT NULL,
+    encuesta character(1) NOT NULL,
+    fecha_inicio date NOT NULL,
+    fecha_final date NOT NULL,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone,
+    PRIMARY KEY (periodo)
+);
+

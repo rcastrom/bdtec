@@ -1,0 +1,27 @@
+CREATE FUNCTION "ITE".pac_alumnos_faltan_ev(IN peri character varying, IN carr character varying)
+    RETURNS TABLE(no_de_control "ITE"."T_no_de_control",nombre_reducido character varying(30),apellido_paterno "ITE"."T_apellidos_persona",apellido_materno "ITE"."T_apellidos_persona",nombre_alumno character varying(255))
+    LANGUAGE 'plpgsql'
+    
+AS $BODY$
+
+BEGIN
+	IF carr='T' THEN
+        RETURN QUERY SELECT DISTINCT(SM.no_de_control), C.nombre_reducido, A.apellido_paterno, A.apellido_materno, A.nombre_alumno 
+        FROM "ITE".alumnos A, "ITE".carreras C, "ITE".seleccion_materias SM 
+        WHERE SM.no_de_control=A.no_de_control AND SM.periodo=peri AND 
+        A.carrera=C.carrera AND A.reticula=C.reticula AND A.nivel_escolar='L'
+        AND SM.no_de_control NOT IN(SELECT DISTINCT(EA.no_de_control) FROM "ITE".evaluacion_alumnos EA WHERE periodo=peri)
+	    ORDER BY nombre_reducido,apellido_paterno,apellido_materno,nombre_alumno; 
+    ELSE
+        RETURN QUERY SELECT DISTINCT(SM.no_de_control), C.nombre_reducido, A.apellido_paterno, A.apellido_materno, A.nombre_alumno 
+        FROM "ITE".alumnos A, "ITE".carreras C, "ITE".seleccion_materias SM 
+        WHERE SM.no_de_control=A.no_de_control AND SM.periodo=peri AND 
+        A.carrera=carr AND A.carrera=C.carrera AND A.reticula=C.reticula
+        AND SM.no_de_control NOT IN(SELECT DISTINCT(EA.no_de_control) FROM "ITE".evaluacion_alumnos EA WHERE periodo=peri)
+	    ORDER BY nombre_reducido,apellido_paterno,apellido_materno,nombre_alumno;
+	END IF;
+END
+
+$BODY$;
+
+

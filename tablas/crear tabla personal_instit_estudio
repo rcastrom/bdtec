@@ -1,0 +1,10 @@
+CREATE TABLE "ITE".personal_instit_estudio (
+    id                              serial                  not null,
+    id_escuela                      int                     not null,
+	id_estado                       int                     not null,
+    id_municipio                    int                     not null,
+    nombre                       text            not null,
+    created_at                      timestamp without time zone          null  ,
+    updated_at                      timestamp without time zone          null  , 
+    CONSTRAINT personal_instit_estudio_pkey PRIMARY KEY (id)
+);

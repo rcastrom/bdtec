@@ -1,0 +1,25 @@
+CREATE OR REPLACE FUNCTION "ITE".pac_eval_carr_ret(IN peri "ITE"."T_periodo",IN preg smallint,IN carr "ITE"."T_carrera",IN ret integer)
+    RETURNS TABLE(respuesta text, cantidad bigint)
+    LANGUAGE 'plpgsql'
+    VOLATILE
+    PARALLEL UNSAFE
+    COST 100    ROWS 1000 
+    
+AS $BODY$
+DECLARE
+
+BEGIN
+	
+	CREATE TEMP TABLE IF NOT EXISTS evlR0 AS
+	SELECT SUBSTRING(EA.respuestas,preg,1) AS respuesta
+    FROM "ITE".evaluacion_alumnos EA, "ITE".materias_carreras MC
+    WHERE EA.periodo=peri AND EA.encuesta='A' AND EA.materia=MC.materia AND MC.carrera=carr AND MC.reticula=ret;
+	
+    RETURN QUERY SELECT DISTINCT(EV.respuesta) AS respuesta, COUNT(EV.respuesta) AS cantidad
+	FROM evlR0 EV
+    GROUP BY EV.respuesta;
+
+	DROP TABLE evlR0; 
+END
+
+$BODY$;
