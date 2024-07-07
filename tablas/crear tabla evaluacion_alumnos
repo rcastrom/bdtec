@@ -3,17 +3,15 @@ CREATE TABLE "ITE".evaluacion_alumnos
     periodo       "ITE"."T_periodo" NOT NULL,
     no_de_control "ITE"."T_no_de_control" NOT NULL,
     materia       "ITE"."T_materia" NOT NULL,
-    grupo         character(3),
-    rfc           character varying (13),
+    grupo         character(3) NOT NULL,
+    personal      integer NOT NULL,
     clave_area    character(6),
-    encuesta      character(1),
-    respuestas    character varying (50),
-    resp_abierta  character varying (255),
-    usuario       character varying (30),
-    consecutivo   integer NOT NULL,
-    created_at    timestamp without time zone,
-    updated_at    timestamp without time zone,
-    PRIMARY KEY (periodo, no_de_control,materia,consecutivo)
+    encuesta      character(1) NOT NULL,
+    respuestas    character varying (50) NOT NULL,
+    resp_abierta  character varying (255) NULL,
+    created_at    timestamp without time zone NULL,
+    updated_at    timestamp without time zone NULL,
+    PRIMARY KEY (periodo, no_de_control,materia)
 )
 WITH (
     OIDS = FALSE

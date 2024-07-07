@@ -1,0 +1,16 @@
+create table "ITE".personal_plazas (
+    id              serial          not null,
+    id_personal     integer         not null,
+	unidad          character varying(2)    not null,
+    subunidad       character varying(2)    not null,
+    id_categoría    integer                 not null,
+    horas           integer                 not null,
+    diagonal        character varying(6)    not null,
+    estatus_plaza   character varying(2)    not null,
+    id_motivo       integer                 not null,
+    efectos_iniciales   character varying(6)    not null,
+    efectos_finales     character varying(6)    not null,
+    created_at    timestamp without time zone   null,
+    updated_at    timestamp without time zone   null,
+    PRIMARY KEY (unidad,subunidad,id_categoria,horas,diagonal)  
+);

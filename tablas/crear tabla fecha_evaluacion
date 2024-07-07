@@ -1,5 +1,6 @@
 CREATE TABLE "ITE".fecha_evaluacion
 (
+    id serial NOT NULL,
     periodo "ITE"."T_periodo" NOT NULL,
     encuesta character(1) NOT NULL,
     fecha_inicio date NOT NULL,

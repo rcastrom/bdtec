@@ -1,0 +1,8 @@
+create table "ITE".motivos (
+    id            serial                        not null,
+	motivo        character varying(2)          not null  ,
+	descripcion   character varying(200)        not null  ,    
+    created_at    timestamp without time zone   null,
+    updated_at    timestamp without time zone   null,
+    PRIMARY KEY (id)
+);

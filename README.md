@@ -8,6 +8,7 @@ ser robustecida por las contribuciones que otros planteles puedan aportar, desar
 Para realizar la migración, se supondrá que la base de datos se encuentra en _Sybase_ y se detallará mediante un [Wiki](#wiki) los pasos necesarios para 
 realizar la migración desde dicho manejador hacia _PostgreSQL_; si bien es la base de datos que se recomienda, debido a que el proyecto está totalmente está 
 desarrollado en PDO, podrá llevar a cabo la migración hacia otro tipo de manejador que considere.
+En caso que usted con SIE, también es posible llevar a cabo la migración correspondiente. [SIE](#sie)
 
 El CSS es responsivo, y fue descargado de una página web como template gratuito en Bootstrap; por lo que si un Tecnológico desea emplear otro template o 
 deciden aportar temas, serán bienvenidas las aportaciones correspondientes.
@@ -23,6 +24,9 @@ Encontrará las siguientes carpetas:
 
 ## Wiki
 Para mayor información respecto al proceso de migración, puede consultar la [Wiki](https://github.com/rcastrom/bdtec/wiki/Migrar) del proyecto
+
+## SIE
+En caso de que en su tecnológico estén empleando a SIE, también es posible llevar a cabo la migración correspondiente
 
 ## Autores ✒️
 

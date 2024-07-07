@@ -5,6 +5,8 @@ create table "ITE".parametros_fichas (
 	inicio_prope       date          null,
 	fin_prope          date          null,
 	entrega            date          null,
-	termina            date          null,                          
+	termina            date          null,    
+    created_at                      timestamp without time zone          null  ,
+    updated_at                      timestamp without time zone          null  ,                       
 );
 

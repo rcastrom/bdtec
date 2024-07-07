@@ -1,6 +1,10 @@
 create table "ITE".aulas_aspirantes (
-	aula             "T_aula"        not null  ,
+    id               serial          not null  ,
+    periodo          "T_periodo"     not null  ,
+	aula             integer      not null  ,
 	capacidad        smallint        not null  ,
 	disponibles      smallint        not null  ,
-	carrera          "T_carrera"     not null  
+	carrera          "T_carrera"     not null  ,
+    created_at    timestamp without time zone   null,
+    updated_at    timestamp without time zone   null      
 );

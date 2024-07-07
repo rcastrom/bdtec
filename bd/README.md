@@ -11,7 +11,7 @@ sudo -i -u postgres
 
 Posteriormente, ingrese la instrucción correspondiente
 ```
-psql -h localhost -p 5432 -U postgres -f **bdtec.sql** **bdtec**
+psql -h localhost -p 5432 -U postgres -f bdtec.sql bdtec
 ```
 El sistema le solicitará la contraseña para el usuario Postgres. Acto seguido, se restaurará lo contenido en el archivo sql hacia la base de datos "bdtec".
 

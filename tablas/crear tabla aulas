@@ -1,0 +1,9 @@
+create table "ITE".aulas (
+    id               serial          not null,
+	aula             character varying(6)        not null  ,
+	ubicacion        character varying(30) not null  ,    
+    capacidad        integer        null,    
+    estatus          boolean         null,
+    created_at    timestamp without time zone   null,
+    updated_at    timestamp without time zone   null  
+);

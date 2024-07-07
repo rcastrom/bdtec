@@ -1,0 +1,11 @@
+create table "ITE".categorías (
+    id            serial          not null,
+	categoría     character varying(8)        not null ,
+    descripcion   character varying(200)     not null ,
+    horas         integer   null,
+    horas_grupo   integer   null,
+    nivel         integer   null,
+    created_at    timestamp without time zone   null,
+    updated_at    timestamp without time zone   null,
+    PRIMARY KEY (id)
+);
