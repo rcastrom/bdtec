@@ -1,6 +1,6 @@
 # BDTEC
 ## Indicaciones
-La base de datos es la empleada para el proyecto SII, que está completamente en blanco, a fin de que pueda realizar la migración necesaria.
+La base de datos es la empleada para el proyecto SII, a fin de que pueda realizar la migración necesaria.
 Se encuentra en PostgreSQL, por lo que se mencionan los pasos a seguir
 
 ### Restauración

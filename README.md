@@ -11,7 +11,7 @@ desarrollado en PDO, podrá llevar a cabo la migración hacia otro tipo de manej
 En caso que usted con SIE, también es posible llevar a cabo la migración correspondiente. [SIE](#sie)
 
 ## Base de datos
-En éste proyecto, se incluye una base de datos lista para ser usada en _PostgreSQL_; si bien la mayoría de las tablas estarán en blance, existen algunas que ya contendrán información, siendo éstas:
+En éste proyecto, se incluye una base de datos lista para ser usada en _PostgreSQL_; si bien la mayoría de las tablas estarán en blanco, existen algunas que ya contendrán información, siendo éstas:
 * Actividades_apoyo. 
 * Apoyo_docencia.
 * Categorías.
@@ -44,7 +44,7 @@ Encontrará las siguientes carpetas:
 Para mayor información respecto al proceso de migración, puede consultar la [Wiki](https://github.com/rcastrom/bdtec/wiki/Migrar) del proyecto
 
 ## SIE
-En caso de que en su tecnológico estén empleando a SIE, también es posible llevar a cabo la migración correspondiente
+En caso de que en su tecnológico estén empleando a SIE, también es posible llevar a cabo la migración correspondiente. (_Información en proceso de construcción_)
 
 ## Autores ✒️
 
